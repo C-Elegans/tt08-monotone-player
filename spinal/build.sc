@@ -10,7 +10,17 @@ object tinytapeout extends SbtModule {
   )
   def ivyDeps = Agg(
     ivy"com.github.spinalhdl::spinalhdl-core:$spinalVersion",
-    ivy"com.github.spinalhdl::spinalhdl-lib:$spinalVersion"
+    ivy"com.github.spinalhdl::spinalhdl-lib:$spinalVersion",
+    ivy"org.scalatest::scalatest::3.2.16"
   )
   def scalacPluginIvyDeps = Agg(ivy"com.github.spinalhdl::spinalhdl-idsl-plugin:$spinalVersion")
+
+  object test extends SbtModuleTests with TestModule.ScalaTest {
+    override def ivyDeps = Agg(
+      ivy"org.scalatest::scalatest::3.2.16"
+    )
+    def sources = T.sources(
+      millSourcePath / "hw" / "spinal"
+    )
+  }
 }
