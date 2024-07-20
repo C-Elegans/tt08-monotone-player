@@ -47,19 +47,20 @@ case class SpiMaster() extends Component {
     val dataSend : State = new StateFsm(sendFsm()) {
       whenCompleted {
         io.resp.valid := True
+        goto(txEnd)
+      }
+    }
+    val txEnd : State = new State {
+      whenIsActive {
+        spi.sclk := !sclk_active
         when(io.cmd.valid){
           io.cmd.ready := True
           dataOut := io.cmd.payload
           goto(dataSend)
         }.otherwise {
-          goto(txEnd)
+          spi.ss := ~ss_active
+          goto(idle)
         }
-      }
-    }
-    val txEnd : State = new State {
-      whenIsActive {
-        spi.ss := ~ss_active
-        goto(idle)
       }
     }
     setEntry(idle)
@@ -83,7 +84,7 @@ case class SpiMaster() extends Component {
     }
     val clockB7 : State = new State {
       whenIsActive {
-        spi.sclk := !sclk_active
+        spi.sclk := sclk_active
         dataIn := dataIn(6 downto 0) ## spi.miso
         exit()
       }
