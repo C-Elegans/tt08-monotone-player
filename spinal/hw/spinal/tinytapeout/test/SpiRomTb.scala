@@ -8,7 +8,7 @@ import spinal.lib.sim._
 import org.scalatest._
 import org.scalatest.funsuite.AnyFunSuite
 
-class SpiMasterTb extends AnyFunSuite {
+class SpiRomTb extends AnyFunSuite {
 
   def spiListener(spi: com.spi.SpiMaster, scoreboard: ScoreboardInOrder[Byte], clockDomain: ClockDomain) : Unit = {
     var clockState : Boolean = false
@@ -30,21 +30,25 @@ class SpiMasterTb extends AnyFunSuite {
     }
   }
 
-  test("8 bits") {
-    Config.sim.compile(SpiMaster()).doSim{ dut =>
-      dut.io.cmd.valid #= false
+  test("read") {
+    Config.sim.compile(SpiRom()).doSim{ dut =>
+      dut.io.readReq.valid #= false
       dut.clockDomain.forkStimulus(1000)
 
       val scoreboard = ScoreboardInOrder[Byte]()
       spiListener(dut.io.spi, scoreboard, dut.clockDomain)
 
       dut.clockDomain.waitSampling(10)
-      StreamDriver(dut.io.cmd, dut.clockDomain) { payload =>
+      StreamDriver(dut.io.readReq, dut.clockDomain) { payload =>
         payload.randomize()
         true
       }
-      StreamMonitor(dut.io.cmd, dut.clockDomain) { payload =>
-        scoreboard.pushRef(payload.toInt.toByte)
+      StreamMonitor(dut.io.readReq, dut.clockDomain) { payload =>
+        val addr = payload.toInt
+        scoreboard.pushRef(0x03)
+        scoreboard.pushRef((addr >> 8).toByte)
+        scoreboard.pushRef((addr & 0xff).toByte)
+        scoreboard.pushRef((0).toByte)
       }
       dut.clockDomain.waitActiveEdgeWhere(scoreboard.matches == 100)
 
