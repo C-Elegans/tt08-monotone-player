@@ -8,7 +8,7 @@ import spinal.lib.fsm._
 case class SpiRom() extends Component {
   val io = new Bundle {
     val spi = master(com.spi.SpiMaster(ssWidth =1, useSclk = true))
-    val readReq = slave(Stream(Bits(16 bits)))
+    val readReq = slave(Stream(UInt(16 bits)))
     val readResp = master(Flow(Bits(8 bits)))
   }
   io.readReq.ready := False
@@ -40,7 +40,7 @@ case class SpiRom() extends Component {
     }
     val readAddr1: State = new State {
       whenIsActive {
-        spiMaster.io.cmd.payload := io.readReq.payload(15 downto 8)
+        spiMaster.io.cmd.payload := io.readReq.payload(15 downto 8).asBits
         spiMaster.io.cmd.valid := True
         when(spiMaster.io.cmd.ready){
           goto(readAddr2)
@@ -49,7 +49,7 @@ case class SpiRom() extends Component {
     }
     val readAddr2: State = new State {
       whenIsActive {
-        spiMaster.io.cmd.payload := io.readReq.payload(7 downto 0)
+        spiMaster.io.cmd.payload := io.readReq.payload(7 downto 0).asBits
         spiMaster.io.cmd.valid := True
         when(spiMaster.io.cmd.ready){
           io.readReq.ready := True

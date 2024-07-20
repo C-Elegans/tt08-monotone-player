@@ -41,27 +41,32 @@ case class TapeoutTop() extends Component {
   io.uio.write.allowOverride
 
   val top = Top(12)
-  top.io.increment_in := (io.ui_in ## B(0, 4 bits)).asUInt
-  top.io.increment_sel := io.uio.read(1 downto 0).asUInt
-  top.io.increment_we := io.uio.read(2)
-  io.uo_out(0) := top.io.oscillator
+
+  io.uo_out(0) := top.io.spi.ss(0)
+  io.uo_out(1) := top.io.spi.sclk
+  io.uo_out(2) := top.io.spi.mosi
+  top.io.spi.miso := io.ui_in(0)
+
+
+  io.uo_out(7) := top.io.oscillator
 
 }
 case class Top(width: Int) extends Component {
   val io = new Bundle {
-    val increment_in = in(UInt(width bits))
-    val increment_sel = in(UInt(2 bits))
-    val increment_we = in(Bool())
+    val spi = master(com.spi.SpiMaster(ssWidth =1, useSclk = true))
     val oscillator = out(Bool())
   }
-  val oscillator = OscillatorGroup(12, 4)
+  val oscillatorGroup = OscillatorGroup(12, 4)
 
-  val increments = Reg(cloneOf(oscillator.io.increments))
-  when(io.increment_we) {
-    increments(io.increment_sel) := io.increment_in
-  }
-  oscillator.io.increments := increments
-  io.oscillator := oscillator.io.oscillator
+  val spiRom = SpiRom()
+  io.spi <> spiRom.io.spi
+
+  val oscillatorControl = OscillatorControl(4, 16384)
+  oscillatorControl.io.readReq >> spiRom.io.readReq
+  oscillatorControl.io.readResp << spiRom.io.readResp
+  oscillatorGroup.io.increments := oscillatorControl.io.oscillatorIncrements
+  io.oscillator := oscillatorGroup.io.oscillator
+
 }
 
 
