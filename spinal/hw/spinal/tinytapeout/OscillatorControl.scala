@@ -10,10 +10,16 @@ case class OscillatorControl(numOscillators: Int, frameLength: Int) extends Comp
     val readReq = master(Stream(UInt(16 bits)))
     val readResp = slave(Flow(Bits(8 bits)))
     val oscillatorIncrements = out(Vec(UInt(12 bits), numOscillators))
+    val oscillator_en = out(Bool())
   }
 
   val pc = Reg(UInt(16 bits)) init(0)
-  val counter = Counter(frameLength, True)
+
+  val oscillatorPrescaler = Counter(4096, True)
+  val oscillatorEn = oscillatorPrescaler.willOverflow
+  io.oscillator_en := oscillatorEn
+
+  val counter = Counter(frameLength, oscillatorEn)
   val frameStart = counter.willOverflow
 
   io.readReq.payload := pc
@@ -79,12 +85,10 @@ case class OscillatorControl(numOscillators: Int, frameLength: Int) extends Comp
 
     val setOscillatorRead: State = new State {
       whenIsActive {
-        whenIsActive {
-          io.readReq.valid := True
-          when(io.readReq.ready){
-            pc := pc + 1
-            goto(setOscillatorData)
-          }
+        io.readReq.valid := True
+        when(io.readReq.ready){
+          pc := pc + 1
+          goto(setOscillatorData)
         }
       }
     }

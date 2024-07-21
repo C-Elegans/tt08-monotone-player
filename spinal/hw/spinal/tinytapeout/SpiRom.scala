@@ -70,8 +70,13 @@ case class SpiRom() extends Component {
       whenIsActive {
         io.readResp <> spiMaster.io.resp
         when(spiMaster.io.resp.valid){
-          goto(idle)
+          goto(waitSS)
         }
+      }
+    }
+    val waitSS : State = new State {
+      whenIsActive {
+        goto(idle)
       }
     }
 

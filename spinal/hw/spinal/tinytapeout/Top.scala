@@ -56,17 +56,20 @@ case class Top(width: Int) extends Component {
     val spi = master(com.spi.SpiMaster(ssWidth =1, useSclk = true))
     val oscillator = out(Bool())
   }
-  val oscillatorGroup = OscillatorGroup(12, 4)
+  val oscillatorControl = OscillatorControl(4, 1024)
+  val enableArea = new ClockEnableArea(oscillatorControl.io.oscillator_en){
+    val oscillatorGroup = OscillatorGroup(12, 4)
+  }
 
   val spiRom = SpiRom()
   io.spi <> spiRom.io.spi
 
-  val oscillatorControl = OscillatorControl(4, 16384)
   oscillatorControl.io.readReq >> spiRom.io.readReq
   oscillatorControl.io.readResp << spiRom.io.readResp
-  oscillatorGroup.io.increments := oscillatorControl.io.oscillatorIncrements
-  io.oscillator := oscillatorGroup.io.oscillator
+  enableArea.oscillatorGroup.io.increments := oscillatorControl.io.oscillatorIncrements
+  io.oscillator := enableArea.oscillatorGroup.io.oscillator
 
+  noIoPrefix();
 }
 
 
@@ -74,5 +77,6 @@ case class Top(width: Int) extends Component {
 
 object VerilogTop extends App {
   Config.spinal.generateVerilog(TapeoutTop())
+  Config.spinal.generateVerilog(Top(12))
 }
 

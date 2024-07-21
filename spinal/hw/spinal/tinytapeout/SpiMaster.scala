@@ -27,6 +27,8 @@ case class SpiMaster() extends Component {
   io.resp.valid := False
   io.resp.payload := dataIn
 
+  val en = Reg(False)
+  en := !en
 
   val fsm = new StateMachine {
     val idle : State = new State {
@@ -46,12 +48,12 @@ case class SpiMaster() extends Component {
     }
     val dataSend : State = new StateFsm(sendFsm()) {
       whenCompleted {
-        io.resp.valid := True
         goto(txEnd)
       }
     }
     val txEnd : State = new State {
       whenIsActive {
+        io.resp.valid := True
         spi.sclk := !sclk_active
         when(io.cmd.valid){
           io.cmd.ready := True
@@ -69,27 +71,32 @@ case class SpiMaster() extends Component {
   def sendFsm() = new StateMachine {
     def drive(next: State) = new State {
       whenIsActive {
-        spi.sclk := !sclk_active
-        spi.mosi := dataOut.msb
-        goto(next)
+        when(en){
+          spi.sclk := !sclk_active
+          spi.mosi := dataOut.msb
+          goto(next)
+        }
       }
     }
     def clock(next: State) = new State {
       whenIsActive {
-        spi.sclk := sclk_active
-        dataOut := dataOut |<< 1
-        dataIn := dataIn(6 downto 0) ## spi.miso
-        goto(next)
+        when(en){
+          spi.sclk := sclk_active
+          dataOut := dataOut |<< 1
+          dataIn := dataIn(6 downto 0) ## spi.miso
+          goto(next)
+        }
       }
     }
-    val clockB7 : State = new State {
+    val exitState = new State {
       whenIsActive {
-        spi.sclk := sclk_active
-        dataIn := dataIn(6 downto 0) ## spi.miso
-        exit()
+        when(en){
+          exit()
+        }
       }
     }
 
+    val clockB7 : State = clock(exitState)
     val driveB7 : State = drive(clockB7)
     val clockB6 : State = clock(driveB7)
     val driveB6 : State = drive(clockB6)

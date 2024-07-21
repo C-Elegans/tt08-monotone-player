@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.10.2a    git head : a348a60b7e8b6a455c72e1536ec3d74a2ea16935
 // Component : tt_um_elegans_design
-// Git hash  : 6a0cf1447db5f6a983bd36f5c5624ec702700aa6
+// Git hash  : adc808125934f4a628c586df91e12f4e08400b18
 
 `timescale 1ns/1ps
 
@@ -15,81 +15,61 @@ module tt_um_elegans_design (
   input  wire          rst_n
 );
 
-  wire                top_1_io_spi_miso;
-  wire                top_1_io_spi_sclk;
-  wire                top_1_io_spi_mosi;
-  wire       [0:0]    top_1_io_spi_ss;
-  wire                top_1_io_oscillator;
+  wire                top_1_spi_miso;
+  wire                top_1_spi_sclk;
+  wire                top_1_spi_mosi;
+  wire       [0:0]    top_1_spi_ss;
+  wire                top_1_oscillator_4;
 
   Top top_1 (
-    .io_spi_ss     (top_1_io_spi_ss    ), //o
-    .io_spi_sclk   (top_1_io_spi_sclk  ), //o
-    .io_spi_mosi   (top_1_io_spi_mosi  ), //o
-    .io_spi_miso   (top_1_io_spi_miso  ), //i
-    .io_oscillator (top_1_io_oscillator), //o
-    .clk           (clk                ), //i
-    .rst_n         (rst_n              )  //i
+    .spi_ss       (top_1_spi_ss      ), //o
+    .spi_sclk     (top_1_spi_sclk    ), //o
+    .spi_mosi     (top_1_spi_mosi    ), //o
+    .spi_miso     (top_1_spi_miso    ), //i
+    .oscillator_4 (top_1_oscillator_4), //o
+    .clk          (clk               ), //i
+    .rst_n        (rst_n             )  //i
   );
   assign uio_oe = 8'h0;
   assign uio_out = 8'h0;
   always @(*) begin
     uo_out = 8'h0;
-    uo_out[0] = top_1_io_spi_ss[0];
-    uo_out[1] = top_1_io_spi_sclk;
-    uo_out[2] = top_1_io_spi_mosi;
-    uo_out[7] = top_1_io_oscillator;
+    uo_out[0] = top_1_spi_ss[0];
+    uo_out[1] = top_1_spi_sclk;
+    uo_out[2] = top_1_spi_mosi;
+    uo_out[7] = top_1_oscillator_4;
   end
 
-  assign top_1_io_spi_miso = ui_in[0];
+  assign top_1_spi_miso = ui_in[0];
 
 endmodule
 
 module Top (
-  output wire [0:0]    io_spi_ss,
-  output wire          io_spi_sclk,
-  output wire          io_spi_mosi,
-  input  wire          io_spi_miso,
-  output wire          io_oscillator,
+  output wire [0:0]    spi_ss,
+  output wire          spi_sclk,
+  output wire          spi_mosi,
+  input  wire          spi_miso,
+  output wire          oscillator_4,
   input  wire          clk,
   input  wire          rst_n
 );
 
-  wire                oscillatorGroup_1_io_oscillator;
-  wire                spiRom_1_io_spi_sclk;
-  wire                spiRom_1_io_spi_mosi;
-  wire       [0:0]    spiRom_1_io_spi_ss;
-  wire                spiRom_1_io_readReq_ready;
-  wire                spiRom_1_io_readResp_valid;
-  wire       [7:0]    spiRom_1_io_readResp_payload;
   wire                oscillatorControl_1_io_readReq_valid;
   wire       [15:0]   oscillatorControl_1_io_readReq_payload;
   wire       [11:0]   oscillatorControl_1_io_oscillatorIncrements_0;
   wire       [11:0]   oscillatorControl_1_io_oscillatorIncrements_1;
   wire       [11:0]   oscillatorControl_1_io_oscillatorIncrements_2;
   wire       [11:0]   oscillatorControl_1_io_oscillatorIncrements_3;
+  wire                oscillatorControl_1_io_oscillator_en;
+  wire                enableArea_oscillatorGroup_io_oscillator;
+  wire                spiRom_1_io_spi_sclk;
+  wire                spiRom_1_io_spi_mosi;
+  wire       [0:0]    spiRom_1_io_spi_ss;
+  wire                spiRom_1_io_readReq_ready;
+  wire                spiRom_1_io_readResp_valid;
+  wire       [7:0]    spiRom_1_io_readResp_payload;
+  wire                enableArea_newClockEnable;
 
-  OscillatorGroup oscillatorGroup_1 (
-    .io_increments_0 (oscillatorControl_1_io_oscillatorIncrements_0[11:0]), //i
-    .io_increments_1 (oscillatorControl_1_io_oscillatorIncrements_1[11:0]), //i
-    .io_increments_2 (oscillatorControl_1_io_oscillatorIncrements_2[11:0]), //i
-    .io_increments_3 (oscillatorControl_1_io_oscillatorIncrements_3[11:0]), //i
-    .io_oscillator   (oscillatorGroup_1_io_oscillator                    ), //o
-    .clk             (clk                                                ), //i
-    .rst_n           (rst_n                                              )  //i
-  );
-  SpiRom spiRom_1 (
-    .io_spi_ss           (spiRom_1_io_spi_ss                          ), //o
-    .io_spi_sclk         (spiRom_1_io_spi_sclk                        ), //o
-    .io_spi_mosi         (spiRom_1_io_spi_mosi                        ), //o
-    .io_spi_miso         (io_spi_miso                                 ), //i
-    .io_readReq_valid    (oscillatorControl_1_io_readReq_valid        ), //i
-    .io_readReq_ready    (spiRom_1_io_readReq_ready                   ), //o
-    .io_readReq_payload  (oscillatorControl_1_io_readReq_payload[15:0]), //i
-    .io_readResp_valid   (spiRom_1_io_readResp_valid                  ), //o
-    .io_readResp_payload (spiRom_1_io_readResp_payload[7:0]           ), //o
-    .clk                 (clk                                         ), //i
-    .rst_n               (rst_n                                       )  //i
-  );
   OscillatorControl oscillatorControl_1 (
     .io_readReq_valid          (oscillatorControl_1_io_readReq_valid               ), //o
     .io_readReq_ready          (spiRom_1_io_readReq_ready                          ), //i
@@ -100,13 +80,379 @@ module Top (
     .io_oscillatorIncrements_1 (oscillatorControl_1_io_oscillatorIncrements_1[11:0]), //o
     .io_oscillatorIncrements_2 (oscillatorControl_1_io_oscillatorIncrements_2[11:0]), //o
     .io_oscillatorIncrements_3 (oscillatorControl_1_io_oscillatorIncrements_3[11:0]), //o
+    .io_oscillator_en          (oscillatorControl_1_io_oscillator_en               ), //o
     .clk                       (clk                                                ), //i
     .rst_n                     (rst_n                                              )  //i
   );
-  assign io_spi_ss = spiRom_1_io_spi_ss;
-  assign io_spi_sclk = spiRom_1_io_spi_sclk;
-  assign io_spi_mosi = spiRom_1_io_spi_mosi;
-  assign io_oscillator = oscillatorGroup_1_io_oscillator;
+  OscillatorGroup enableArea_oscillatorGroup (
+    .io_increments_0           (oscillatorControl_1_io_oscillatorIncrements_0[11:0]), //i
+    .io_increments_1           (oscillatorControl_1_io_oscillatorIncrements_1[11:0]), //i
+    .io_increments_2           (oscillatorControl_1_io_oscillatorIncrements_2[11:0]), //i
+    .io_increments_3           (oscillatorControl_1_io_oscillatorIncrements_3[11:0]), //i
+    .io_oscillator             (enableArea_oscillatorGroup_io_oscillator           ), //o
+    .clk                       (clk                                                ), //i
+    .rst_n                     (rst_n                                              ), //i
+    .enableArea_newClockEnable (enableArea_newClockEnable                          )  //i
+  );
+  SpiRom spiRom_1 (
+    .io_spi_ss           (spiRom_1_io_spi_ss                          ), //o
+    .io_spi_sclk         (spiRom_1_io_spi_sclk                        ), //o
+    .io_spi_mosi         (spiRom_1_io_spi_mosi                        ), //o
+    .io_spi_miso         (spi_miso                                    ), //i
+    .io_readReq_valid    (oscillatorControl_1_io_readReq_valid        ), //i
+    .io_readReq_ready    (spiRom_1_io_readReq_ready                   ), //o
+    .io_readReq_payload  (oscillatorControl_1_io_readReq_payload[15:0]), //i
+    .io_readResp_valid   (spiRom_1_io_readResp_valid                  ), //o
+    .io_readResp_payload (spiRom_1_io_readResp_payload[7:0]           ), //o
+    .clk                 (clk                                         ), //i
+    .rst_n               (rst_n                                       )  //i
+  );
+  assign enableArea_newClockEnable = (1'b1 && oscillatorControl_1_io_oscillator_en);
+  assign spi_ss = spiRom_1_io_spi_ss;
+  assign spi_sclk = spiRom_1_io_spi_sclk;
+  assign spi_mosi = spiRom_1_io_spi_mosi;
+  assign oscillator_4 = enableArea_oscillatorGroup_io_oscillator;
+
+endmodule
+
+module SpiRom (
+  output wire [0:0]    io_spi_ss,
+  output wire          io_spi_sclk,
+  output wire          io_spi_mosi,
+  input  wire          io_spi_miso,
+  input  wire          io_readReq_valid,
+  output reg           io_readReq_ready,
+  input  wire [15:0]   io_readReq_payload,
+  output reg           io_readResp_valid,
+  output reg  [7:0]    io_readResp_payload,
+  input  wire          clk,
+  input  wire          rst_n
+);
+  localparam fsm_enumDef_BOOT = 3'd0;
+  localparam fsm_enumDef_idle = 3'd1;
+  localparam fsm_enumDef_readCmd = 3'd2;
+  localparam fsm_enumDef_readAddr1 = 3'd3;
+  localparam fsm_enumDef_readAddr2 = 3'd4;
+  localparam fsm_enumDef_readData = 3'd5;
+  localparam fsm_enumDef_readDataWait = 3'd6;
+  localparam fsm_enumDef_waitSS = 3'd7;
+
+  reg                 spiMaster_1_io_cmd_valid;
+  reg        [7:0]    spiMaster_1_io_cmd_payload;
+  wire                spiMaster_1_io_spi_sclk;
+  wire                spiMaster_1_io_spi_mosi;
+  wire       [0:0]    spiMaster_1_io_spi_ss;
+  wire                spiMaster_1_io_cmd_ready;
+  wire                spiMaster_1_io_resp_valid;
+  wire       [7:0]    spiMaster_1_io_resp_payload;
+  wire                fsm_wantExit;
+  reg                 fsm_wantStart;
+  wire                fsm_wantKill;
+  reg        [2:0]    fsm_stateReg;
+  reg        [2:0]    fsm_stateNext;
+  `ifndef SYNTHESIS
+  reg [95:0] fsm_stateReg_string;
+  reg [95:0] fsm_stateNext_string;
+  `endif
+
+
+  SpiMaster spiMaster_1 (
+    .io_spi_ss       (spiMaster_1_io_spi_ss           ), //o
+    .io_spi_sclk     (spiMaster_1_io_spi_sclk         ), //o
+    .io_spi_mosi     (spiMaster_1_io_spi_mosi         ), //o
+    .io_spi_miso     (io_spi_miso                     ), //i
+    .io_cmd_valid    (spiMaster_1_io_cmd_valid        ), //i
+    .io_cmd_ready    (spiMaster_1_io_cmd_ready        ), //o
+    .io_cmd_payload  (spiMaster_1_io_cmd_payload[7:0] ), //i
+    .io_resp_valid   (spiMaster_1_io_resp_valid       ), //o
+    .io_resp_payload (spiMaster_1_io_resp_payload[7:0]), //o
+    .clk             (clk                             ), //i
+    .rst_n           (rst_n                           )  //i
+  );
+  `ifndef SYNTHESIS
+  always @(*) begin
+    case(fsm_stateReg)
+      fsm_enumDef_BOOT : fsm_stateReg_string = "BOOT        ";
+      fsm_enumDef_idle : fsm_stateReg_string = "idle        ";
+      fsm_enumDef_readCmd : fsm_stateReg_string = "readCmd     ";
+      fsm_enumDef_readAddr1 : fsm_stateReg_string = "readAddr1   ";
+      fsm_enumDef_readAddr2 : fsm_stateReg_string = "readAddr2   ";
+      fsm_enumDef_readData : fsm_stateReg_string = "readData    ";
+      fsm_enumDef_readDataWait : fsm_stateReg_string = "readDataWait";
+      fsm_enumDef_waitSS : fsm_stateReg_string = "waitSS      ";
+      default : fsm_stateReg_string = "????????????";
+    endcase
+  end
+  always @(*) begin
+    case(fsm_stateNext)
+      fsm_enumDef_BOOT : fsm_stateNext_string = "BOOT        ";
+      fsm_enumDef_idle : fsm_stateNext_string = "idle        ";
+      fsm_enumDef_readCmd : fsm_stateNext_string = "readCmd     ";
+      fsm_enumDef_readAddr1 : fsm_stateNext_string = "readAddr1   ";
+      fsm_enumDef_readAddr2 : fsm_stateNext_string = "readAddr2   ";
+      fsm_enumDef_readData : fsm_stateNext_string = "readData    ";
+      fsm_enumDef_readDataWait : fsm_stateNext_string = "readDataWait";
+      fsm_enumDef_waitSS : fsm_stateNext_string = "waitSS      ";
+      default : fsm_stateNext_string = "????????????";
+    endcase
+  end
+  `endif
+
+  always @(*) begin
+    io_readReq_ready = 1'b0;
+    case(fsm_stateReg)
+      fsm_enumDef_idle : begin
+      end
+      fsm_enumDef_readCmd : begin
+      end
+      fsm_enumDef_readAddr1 : begin
+      end
+      fsm_enumDef_readAddr2 : begin
+        if(spiMaster_1_io_cmd_ready) begin
+          io_readReq_ready = 1'b1;
+        end
+      end
+      fsm_enumDef_readData : begin
+      end
+      fsm_enumDef_readDataWait : begin
+      end
+      fsm_enumDef_waitSS : begin
+      end
+      default : begin
+      end
+    endcase
+  end
+
+  always @(*) begin
+    io_readResp_valid = 1'b0;
+    case(fsm_stateReg)
+      fsm_enumDef_idle : begin
+      end
+      fsm_enumDef_readCmd : begin
+      end
+      fsm_enumDef_readAddr1 : begin
+      end
+      fsm_enumDef_readAddr2 : begin
+      end
+      fsm_enumDef_readData : begin
+      end
+      fsm_enumDef_readDataWait : begin
+        io_readResp_valid = spiMaster_1_io_resp_valid;
+      end
+      fsm_enumDef_waitSS : begin
+      end
+      default : begin
+      end
+    endcase
+  end
+
+  always @(*) begin
+    io_readResp_payload = 8'h0;
+    case(fsm_stateReg)
+      fsm_enumDef_idle : begin
+      end
+      fsm_enumDef_readCmd : begin
+      end
+      fsm_enumDef_readAddr1 : begin
+      end
+      fsm_enumDef_readAddr2 : begin
+      end
+      fsm_enumDef_readData : begin
+      end
+      fsm_enumDef_readDataWait : begin
+        io_readResp_payload = spiMaster_1_io_resp_payload;
+      end
+      fsm_enumDef_waitSS : begin
+      end
+      default : begin
+      end
+    endcase
+  end
+
+  assign io_spi_ss = spiMaster_1_io_spi_ss;
+  assign io_spi_sclk = spiMaster_1_io_spi_sclk;
+  assign io_spi_mosi = spiMaster_1_io_spi_mosi;
+  always @(*) begin
+    spiMaster_1_io_cmd_valid = 1'b0;
+    case(fsm_stateReg)
+      fsm_enumDef_idle : begin
+      end
+      fsm_enumDef_readCmd : begin
+        spiMaster_1_io_cmd_valid = 1'b1;
+      end
+      fsm_enumDef_readAddr1 : begin
+        spiMaster_1_io_cmd_valid = 1'b1;
+      end
+      fsm_enumDef_readAddr2 : begin
+        spiMaster_1_io_cmd_valid = 1'b1;
+      end
+      fsm_enumDef_readData : begin
+        spiMaster_1_io_cmd_valid = 1'b1;
+      end
+      fsm_enumDef_readDataWait : begin
+      end
+      fsm_enumDef_waitSS : begin
+      end
+      default : begin
+      end
+    endcase
+  end
+
+  always @(*) begin
+    spiMaster_1_io_cmd_payload = 8'h0;
+    case(fsm_stateReg)
+      fsm_enumDef_idle : begin
+      end
+      fsm_enumDef_readCmd : begin
+        spiMaster_1_io_cmd_payload = 8'h03;
+      end
+      fsm_enumDef_readAddr1 : begin
+        spiMaster_1_io_cmd_payload = io_readReq_payload[15 : 8];
+      end
+      fsm_enumDef_readAddr2 : begin
+        spiMaster_1_io_cmd_payload = io_readReq_payload[7 : 0];
+      end
+      fsm_enumDef_readData : begin
+        spiMaster_1_io_cmd_payload = 8'h0;
+      end
+      fsm_enumDef_readDataWait : begin
+      end
+      fsm_enumDef_waitSS : begin
+      end
+      default : begin
+      end
+    endcase
+  end
+
+  assign fsm_wantExit = 1'b0;
+  always @(*) begin
+    fsm_wantStart = 1'b0;
+    case(fsm_stateReg)
+      fsm_enumDef_idle : begin
+      end
+      fsm_enumDef_readCmd : begin
+      end
+      fsm_enumDef_readAddr1 : begin
+      end
+      fsm_enumDef_readAddr2 : begin
+      end
+      fsm_enumDef_readData : begin
+      end
+      fsm_enumDef_readDataWait : begin
+      end
+      fsm_enumDef_waitSS : begin
+      end
+      default : begin
+        fsm_wantStart = 1'b1;
+      end
+    endcase
+  end
+
+  assign fsm_wantKill = 1'b0;
+  always @(*) begin
+    fsm_stateNext = fsm_stateReg;
+    case(fsm_stateReg)
+      fsm_enumDef_idle : begin
+        if(io_readReq_valid) begin
+          fsm_stateNext = fsm_enumDef_readCmd;
+        end
+      end
+      fsm_enumDef_readCmd : begin
+        if(spiMaster_1_io_cmd_ready) begin
+          fsm_stateNext = fsm_enumDef_readAddr1;
+        end
+      end
+      fsm_enumDef_readAddr1 : begin
+        if(spiMaster_1_io_cmd_ready) begin
+          fsm_stateNext = fsm_enumDef_readAddr2;
+        end
+      end
+      fsm_enumDef_readAddr2 : begin
+        if(spiMaster_1_io_cmd_ready) begin
+          fsm_stateNext = fsm_enumDef_readData;
+        end
+      end
+      fsm_enumDef_readData : begin
+        if(spiMaster_1_io_cmd_ready) begin
+          fsm_stateNext = fsm_enumDef_readDataWait;
+        end
+      end
+      fsm_enumDef_readDataWait : begin
+        if(spiMaster_1_io_resp_valid) begin
+          fsm_stateNext = fsm_enumDef_waitSS;
+        end
+      end
+      fsm_enumDef_waitSS : begin
+        fsm_stateNext = fsm_enumDef_idle;
+      end
+      default : begin
+      end
+    endcase
+    if(fsm_wantStart) begin
+      fsm_stateNext = fsm_enumDef_idle;
+    end
+    if(fsm_wantKill) begin
+      fsm_stateNext = fsm_enumDef_BOOT;
+    end
+  end
+
+  always @(posedge clk or negedge rst_n) begin
+    if(!rst_n) begin
+      fsm_stateReg <= fsm_enumDef_BOOT;
+    end else begin
+      fsm_stateReg <= fsm_stateNext;
+    end
+  end
+
+
+endmodule
+
+module OscillatorGroup (
+  input  wire [11:0]   io_increments_0,
+  input  wire [11:0]   io_increments_1,
+  input  wire [11:0]   io_increments_2,
+  input  wire [11:0]   io_increments_3,
+  output wire          io_oscillator,
+  input  wire          clk,
+  input  wire          rst_n,
+  input  wire          enableArea_newClockEnable
+);
+
+  wire                oscillator_4_io_oscillator;
+  wire                oscillator_5_io_oscillator;
+  wire                oscillator_6_io_oscillator;
+  wire                oscillator_7_io_oscillator;
+  wire       [3:0]    oscillatorOutputs;
+
+  Oscillator oscillator_4 (
+    .io_increment              (io_increments_0[11:0]     ), //i
+    .io_oscillator             (oscillator_4_io_oscillator), //o
+    .clk                       (clk                       ), //i
+    .rst_n                     (rst_n                     ), //i
+    .enableArea_newClockEnable (enableArea_newClockEnable )  //i
+  );
+  Oscillator oscillator_5 (
+    .io_increment              (io_increments_1[11:0]     ), //i
+    .io_oscillator             (oscillator_5_io_oscillator), //o
+    .clk                       (clk                       ), //i
+    .rst_n                     (rst_n                     ), //i
+    .enableArea_newClockEnable (enableArea_newClockEnable )  //i
+  );
+  Oscillator oscillator_6 (
+    .io_increment              (io_increments_2[11:0]     ), //i
+    .io_oscillator             (oscillator_6_io_oscillator), //o
+    .clk                       (clk                       ), //i
+    .rst_n                     (rst_n                     ), //i
+    .enableArea_newClockEnable (enableArea_newClockEnable )  //i
+  );
+  Oscillator oscillator_7 (
+    .io_increment              (io_increments_3[11:0]     ), //i
+    .io_oscillator             (oscillator_7_io_oscillator), //o
+    .clk                       (clk                       ), //i
+    .rst_n                     (rst_n                     ), //i
+    .enableArea_newClockEnable (enableArea_newClockEnable )  //i
+  );
+  assign io_oscillator = ((oscillator_4_io_oscillator ^ oscillator_5_io_oscillator) ^ (oscillator_6_io_oscillator ^ oscillator_7_io_oscillator));
 
 endmodule
 
@@ -120,6 +466,7 @@ module OscillatorControl (
   output wire [11:0]   io_oscillatorIncrements_1,
   output wire [11:0]   io_oscillatorIncrements_2,
   output wire [11:0]   io_oscillatorIncrements_3,
+  output wire          io_oscillator_en,
   input  wire          clk,
   input  wire          rst_n
 );
@@ -130,14 +477,22 @@ module OscillatorControl (
   localparam controlFsm_enumDef_setOscillatorRead = 3'd4;
   localparam controlFsm_enumDef_setOscillatorData = 3'd5;
 
-  wire       [13:0]   _zz_counter_valueNext;
+  wire       [11:0]   _zz_oscillatorPrescaler_valueNext;
+  wire       [0:0]    _zz_oscillatorPrescaler_valueNext_1;
+  wire       [9:0]    _zz_counter_valueNext;
   wire       [0:0]    _zz_counter_valueNext_1;
   reg        [15:0]   pc;
   wire                when_Utils_l578;
+  reg                 oscillatorPrescaler_willIncrement;
+  wire                oscillatorPrescaler_willClear;
+  reg        [11:0]   oscillatorPrescaler_valueNext;
+  reg        [11:0]   oscillatorPrescaler_value;
+  wire                oscillatorPrescaler_willOverflowIfInc;
+  wire                oscillatorPrescaler_willOverflow;
   reg                 counter_willIncrement;
   wire                counter_willClear;
-  reg        [13:0]   counter_valueNext;
-  reg        [13:0]   counter_value;
+  reg        [9:0]    counter_valueNext;
+  reg        [9:0]    counter_value;
   wire                counter_willOverflowIfInc;
   wire                counter_willOverflow;
   reg        [11:0]   oscillatorControl_0;
@@ -151,7 +506,7 @@ module OscillatorControl (
   wire                controlFsm_wantKill;
   reg        [2:0]    controlFsm_stateReg;
   reg        [2:0]    controlFsm_stateNext;
-  wire       [3:0]    switch_OscillatorControl_l44;
+  wire       [3:0]    switch_OscillatorControl_l50;
   wire       [3:0]    _zz_oscillatorMsb;
   wire       [3:0]    _zz_1;
   wire       [11:0]   _zz_oscillatorControl_0;
@@ -161,8 +516,10 @@ module OscillatorControl (
   `endif
 
 
+  assign _zz_oscillatorPrescaler_valueNext_1 = oscillatorPrescaler_willIncrement;
+  assign _zz_oscillatorPrescaler_valueNext = {11'd0, _zz_oscillatorPrescaler_valueNext_1};
   assign _zz_counter_valueNext_1 = counter_willIncrement;
-  assign _zz_counter_valueNext = {13'd0, _zz_counter_valueNext_1};
+  assign _zz_counter_valueNext = {9'd0, _zz_counter_valueNext_1};
   `ifndef SYNTHESIS
   always @(*) begin
     case(controlFsm_stateReg)
@@ -190,19 +547,37 @@ module OscillatorControl (
 
   assign when_Utils_l578 = 1'b1;
   always @(*) begin
-    counter_willIncrement = 1'b0;
+    oscillatorPrescaler_willIncrement = 1'b0;
     if(when_Utils_l578) begin
+      oscillatorPrescaler_willIncrement = 1'b1;
+    end
+  end
+
+  assign oscillatorPrescaler_willClear = 1'b0;
+  assign oscillatorPrescaler_willOverflowIfInc = (oscillatorPrescaler_value == 12'hfff);
+  assign oscillatorPrescaler_willOverflow = (oscillatorPrescaler_willOverflowIfInc && oscillatorPrescaler_willIncrement);
+  always @(*) begin
+    oscillatorPrescaler_valueNext = (oscillatorPrescaler_value + _zz_oscillatorPrescaler_valueNext);
+    if(oscillatorPrescaler_willClear) begin
+      oscillatorPrescaler_valueNext = 12'h0;
+    end
+  end
+
+  assign io_oscillator_en = oscillatorPrescaler_willOverflow;
+  always @(*) begin
+    counter_willIncrement = 1'b0;
+    if(oscillatorPrescaler_willOverflow) begin
       counter_willIncrement = 1'b1;
     end
   end
 
   assign counter_willClear = 1'b0;
-  assign counter_willOverflowIfInc = (counter_value == 14'h3fff);
+  assign counter_willOverflowIfInc = (counter_value == 10'h3ff);
   assign counter_willOverflow = (counter_willOverflowIfInc && counter_willIncrement);
   always @(*) begin
     counter_valueNext = (counter_value + _zz_counter_valueNext);
     if(counter_willClear) begin
-      counter_valueNext = 14'h0;
+      counter_valueNext = 10'h0;
     end
   end
 
@@ -218,6 +593,7 @@ module OscillatorControl (
       controlFsm_enumDef_decodeCmd_waitFrameEnd : begin
       end
       controlFsm_enumDef_setOscillatorRead : begin
+        io_readReq_valid = 1'b1;
       end
       controlFsm_enumDef_setOscillatorData : begin
       end
@@ -261,7 +637,7 @@ module OscillatorControl (
       end
       controlFsm_enumDef_decodeCmd : begin
         if(io_readResp_valid) begin
-          case(switch_OscillatorControl_l44)
+          case(switch_OscillatorControl_l50)
             4'b0000 : begin
               controlFsm_stateNext = controlFsm_enumDef_decodeCmd_waitFrameEnd;
             end
@@ -288,6 +664,9 @@ module OscillatorControl (
         end
       end
       controlFsm_enumDef_setOscillatorRead : begin
+        if(io_readReq_ready) begin
+          controlFsm_stateNext = controlFsm_enumDef_setOscillatorData;
+        end
       end
       controlFsm_enumDef_setOscillatorData : begin
         if(io_readResp_valid) begin
@@ -305,16 +684,18 @@ module OscillatorControl (
     end
   end
 
-  assign switch_OscillatorControl_l44 = io_readResp_payload[7 : 4];
+  assign switch_OscillatorControl_l50 = io_readResp_payload[7 : 4];
   assign _zz_oscillatorMsb = io_readResp_payload[3 : 0];
   assign _zz_1 = ({3'd0,1'b1} <<< oscillatorSel);
   assign _zz_oscillatorControl_0 = {oscillatorMsb,io_readResp_payload};
   always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
       pc <= 16'h0;
-      counter_value <= 14'h0;
+      oscillatorPrescaler_value <= 12'h0;
+      counter_value <= 10'h0;
       controlFsm_stateReg <= controlFsm_enumDef_BOOT;
     end else begin
+      oscillatorPrescaler_value <= oscillatorPrescaler_valueNext;
       counter_value <= counter_valueNext;
       controlFsm_stateReg <= controlFsm_stateNext;
       case(controlFsm_stateReg)
@@ -328,6 +709,9 @@ module OscillatorControl (
         controlFsm_enumDef_decodeCmd_waitFrameEnd : begin
         end
         controlFsm_enumDef_setOscillatorRead : begin
+          if(io_readReq_ready) begin
+            pc <= (pc + 16'h0001);
+          end
         end
         controlFsm_enumDef_setOscillatorData : begin
         end
@@ -343,7 +727,7 @@ module OscillatorControl (
       end
       controlFsm_enumDef_decodeCmd : begin
         if(io_readResp_valid) begin
-          case(switch_OscillatorControl_l44)
+          case(switch_OscillatorControl_l50)
             4'b1100 : begin
               oscillatorSel <= 2'b00;
               oscillatorMsb <= _zz_oscillatorMsb;
@@ -393,324 +777,6 @@ module OscillatorControl (
 
 endmodule
 
-module SpiRom (
-  output wire [0:0]    io_spi_ss,
-  output wire          io_spi_sclk,
-  output wire          io_spi_mosi,
-  input  wire          io_spi_miso,
-  input  wire          io_readReq_valid,
-  output reg           io_readReq_ready,
-  input  wire [15:0]   io_readReq_payload,
-  output reg           io_readResp_valid,
-  output reg  [7:0]    io_readResp_payload,
-  input  wire          clk,
-  input  wire          rst_n
-);
-  localparam fsm_enumDef_BOOT = 3'd0;
-  localparam fsm_enumDef_idle = 3'd1;
-  localparam fsm_enumDef_readCmd = 3'd2;
-  localparam fsm_enumDef_readAddr1 = 3'd3;
-  localparam fsm_enumDef_readAddr2 = 3'd4;
-  localparam fsm_enumDef_readData = 3'd5;
-  localparam fsm_enumDef_readDataWait = 3'd6;
-
-  reg                 spiMaster_1_io_cmd_valid;
-  reg        [7:0]    spiMaster_1_io_cmd_payload;
-  wire                spiMaster_1_io_spi_sclk;
-  wire                spiMaster_1_io_spi_mosi;
-  wire       [0:0]    spiMaster_1_io_spi_ss;
-  wire                spiMaster_1_io_cmd_ready;
-  wire                spiMaster_1_io_resp_valid;
-  wire       [7:0]    spiMaster_1_io_resp_payload;
-  wire                fsm_wantExit;
-  reg                 fsm_wantStart;
-  wire                fsm_wantKill;
-  reg        [2:0]    fsm_stateReg;
-  reg        [2:0]    fsm_stateNext;
-  `ifndef SYNTHESIS
-  reg [95:0] fsm_stateReg_string;
-  reg [95:0] fsm_stateNext_string;
-  `endif
-
-
-  SpiMaster spiMaster_1 (
-    .io_spi_ss       (spiMaster_1_io_spi_ss           ), //o
-    .io_spi_sclk     (spiMaster_1_io_spi_sclk         ), //o
-    .io_spi_mosi     (spiMaster_1_io_spi_mosi         ), //o
-    .io_spi_miso     (io_spi_miso                     ), //i
-    .io_cmd_valid    (spiMaster_1_io_cmd_valid        ), //i
-    .io_cmd_ready    (spiMaster_1_io_cmd_ready        ), //o
-    .io_cmd_payload  (spiMaster_1_io_cmd_payload[7:0] ), //i
-    .io_resp_valid   (spiMaster_1_io_resp_valid       ), //o
-    .io_resp_payload (spiMaster_1_io_resp_payload[7:0]), //o
-    .clk             (clk                             ), //i
-    .rst_n           (rst_n                           )  //i
-  );
-  `ifndef SYNTHESIS
-  always @(*) begin
-    case(fsm_stateReg)
-      fsm_enumDef_BOOT : fsm_stateReg_string = "BOOT        ";
-      fsm_enumDef_idle : fsm_stateReg_string = "idle        ";
-      fsm_enumDef_readCmd : fsm_stateReg_string = "readCmd     ";
-      fsm_enumDef_readAddr1 : fsm_stateReg_string = "readAddr1   ";
-      fsm_enumDef_readAddr2 : fsm_stateReg_string = "readAddr2   ";
-      fsm_enumDef_readData : fsm_stateReg_string = "readData    ";
-      fsm_enumDef_readDataWait : fsm_stateReg_string = "readDataWait";
-      default : fsm_stateReg_string = "????????????";
-    endcase
-  end
-  always @(*) begin
-    case(fsm_stateNext)
-      fsm_enumDef_BOOT : fsm_stateNext_string = "BOOT        ";
-      fsm_enumDef_idle : fsm_stateNext_string = "idle        ";
-      fsm_enumDef_readCmd : fsm_stateNext_string = "readCmd     ";
-      fsm_enumDef_readAddr1 : fsm_stateNext_string = "readAddr1   ";
-      fsm_enumDef_readAddr2 : fsm_stateNext_string = "readAddr2   ";
-      fsm_enumDef_readData : fsm_stateNext_string = "readData    ";
-      fsm_enumDef_readDataWait : fsm_stateNext_string = "readDataWait";
-      default : fsm_stateNext_string = "????????????";
-    endcase
-  end
-  `endif
-
-  always @(*) begin
-    io_readReq_ready = 1'b0;
-    case(fsm_stateReg)
-      fsm_enumDef_idle : begin
-      end
-      fsm_enumDef_readCmd : begin
-      end
-      fsm_enumDef_readAddr1 : begin
-      end
-      fsm_enumDef_readAddr2 : begin
-        if(spiMaster_1_io_cmd_ready) begin
-          io_readReq_ready = 1'b1;
-        end
-      end
-      fsm_enumDef_readData : begin
-      end
-      fsm_enumDef_readDataWait : begin
-      end
-      default : begin
-      end
-    endcase
-  end
-
-  always @(*) begin
-    io_readResp_valid = 1'b0;
-    case(fsm_stateReg)
-      fsm_enumDef_idle : begin
-      end
-      fsm_enumDef_readCmd : begin
-      end
-      fsm_enumDef_readAddr1 : begin
-      end
-      fsm_enumDef_readAddr2 : begin
-      end
-      fsm_enumDef_readData : begin
-      end
-      fsm_enumDef_readDataWait : begin
-        io_readResp_valid = spiMaster_1_io_resp_valid;
-      end
-      default : begin
-      end
-    endcase
-  end
-
-  always @(*) begin
-    io_readResp_payload = 8'h0;
-    case(fsm_stateReg)
-      fsm_enumDef_idle : begin
-      end
-      fsm_enumDef_readCmd : begin
-      end
-      fsm_enumDef_readAddr1 : begin
-      end
-      fsm_enumDef_readAddr2 : begin
-      end
-      fsm_enumDef_readData : begin
-      end
-      fsm_enumDef_readDataWait : begin
-        io_readResp_payload = spiMaster_1_io_resp_payload;
-      end
-      default : begin
-      end
-    endcase
-  end
-
-  assign io_spi_ss = spiMaster_1_io_spi_ss;
-  assign io_spi_sclk = spiMaster_1_io_spi_sclk;
-  assign io_spi_mosi = spiMaster_1_io_spi_mosi;
-  always @(*) begin
-    spiMaster_1_io_cmd_valid = 1'b0;
-    case(fsm_stateReg)
-      fsm_enumDef_idle : begin
-      end
-      fsm_enumDef_readCmd : begin
-        spiMaster_1_io_cmd_valid = 1'b1;
-      end
-      fsm_enumDef_readAddr1 : begin
-        spiMaster_1_io_cmd_valid = 1'b1;
-      end
-      fsm_enumDef_readAddr2 : begin
-        spiMaster_1_io_cmd_valid = 1'b1;
-      end
-      fsm_enumDef_readData : begin
-        spiMaster_1_io_cmd_valid = 1'b1;
-      end
-      fsm_enumDef_readDataWait : begin
-      end
-      default : begin
-      end
-    endcase
-  end
-
-  always @(*) begin
-    spiMaster_1_io_cmd_payload = 8'h0;
-    case(fsm_stateReg)
-      fsm_enumDef_idle : begin
-      end
-      fsm_enumDef_readCmd : begin
-        spiMaster_1_io_cmd_payload = 8'h03;
-      end
-      fsm_enumDef_readAddr1 : begin
-        spiMaster_1_io_cmd_payload = io_readReq_payload[15 : 8];
-      end
-      fsm_enumDef_readAddr2 : begin
-        spiMaster_1_io_cmd_payload = io_readReq_payload[7 : 0];
-      end
-      fsm_enumDef_readData : begin
-        spiMaster_1_io_cmd_payload = 8'h0;
-      end
-      fsm_enumDef_readDataWait : begin
-      end
-      default : begin
-      end
-    endcase
-  end
-
-  assign fsm_wantExit = 1'b0;
-  always @(*) begin
-    fsm_wantStart = 1'b0;
-    case(fsm_stateReg)
-      fsm_enumDef_idle : begin
-      end
-      fsm_enumDef_readCmd : begin
-      end
-      fsm_enumDef_readAddr1 : begin
-      end
-      fsm_enumDef_readAddr2 : begin
-      end
-      fsm_enumDef_readData : begin
-      end
-      fsm_enumDef_readDataWait : begin
-      end
-      default : begin
-        fsm_wantStart = 1'b1;
-      end
-    endcase
-  end
-
-  assign fsm_wantKill = 1'b0;
-  always @(*) begin
-    fsm_stateNext = fsm_stateReg;
-    case(fsm_stateReg)
-      fsm_enumDef_idle : begin
-        if(io_readReq_valid) begin
-          fsm_stateNext = fsm_enumDef_readCmd;
-        end
-      end
-      fsm_enumDef_readCmd : begin
-        if(spiMaster_1_io_cmd_ready) begin
-          fsm_stateNext = fsm_enumDef_readAddr1;
-        end
-      end
-      fsm_enumDef_readAddr1 : begin
-        if(spiMaster_1_io_cmd_ready) begin
-          fsm_stateNext = fsm_enumDef_readAddr2;
-        end
-      end
-      fsm_enumDef_readAddr2 : begin
-        if(spiMaster_1_io_cmd_ready) begin
-          fsm_stateNext = fsm_enumDef_readData;
-        end
-      end
-      fsm_enumDef_readData : begin
-        if(spiMaster_1_io_cmd_ready) begin
-          fsm_stateNext = fsm_enumDef_readDataWait;
-        end
-      end
-      fsm_enumDef_readDataWait : begin
-        if(spiMaster_1_io_resp_valid) begin
-          fsm_stateNext = fsm_enumDef_idle;
-        end
-      end
-      default : begin
-      end
-    endcase
-    if(fsm_wantStart) begin
-      fsm_stateNext = fsm_enumDef_idle;
-    end
-    if(fsm_wantKill) begin
-      fsm_stateNext = fsm_enumDef_BOOT;
-    end
-  end
-
-  always @(posedge clk or negedge rst_n) begin
-    if(!rst_n) begin
-      fsm_stateReg <= fsm_enumDef_BOOT;
-    end else begin
-      fsm_stateReg <= fsm_stateNext;
-    end
-  end
-
-
-endmodule
-
-module OscillatorGroup (
-  input  wire [11:0]   io_increments_0,
-  input  wire [11:0]   io_increments_1,
-  input  wire [11:0]   io_increments_2,
-  input  wire [11:0]   io_increments_3,
-  output wire          io_oscillator,
-  input  wire          clk,
-  input  wire          rst_n
-);
-
-  wire                oscillator_4_io_oscillator;
-  wire                oscillator_5_io_oscillator;
-  wire                oscillator_6_io_oscillator;
-  wire                oscillator_7_io_oscillator;
-  wire       [3:0]    oscillatorOutputs;
-
-  Oscillator oscillator_4 (
-    .io_increment  (io_increments_0[11:0]     ), //i
-    .io_oscillator (oscillator_4_io_oscillator), //o
-    .clk           (clk                       ), //i
-    .rst_n         (rst_n                     )  //i
-  );
-  Oscillator oscillator_5 (
-    .io_increment  (io_increments_1[11:0]     ), //i
-    .io_oscillator (oscillator_5_io_oscillator), //o
-    .clk           (clk                       ), //i
-    .rst_n         (rst_n                     )  //i
-  );
-  Oscillator oscillator_6 (
-    .io_increment  (io_increments_2[11:0]     ), //i
-    .io_oscillator (oscillator_6_io_oscillator), //o
-    .clk           (clk                       ), //i
-    .rst_n         (rst_n                     )  //i
-  );
-  Oscillator oscillator_7 (
-    .io_increment  (io_increments_3[11:0]     ), //i
-    .io_oscillator (oscillator_7_io_oscillator), //o
-    .clk           (clk                       ), //i
-    .rst_n         (rst_n                     )  //i
-  );
-  assign io_oscillator = ((oscillator_4_io_oscillator ^ oscillator_5_io_oscillator) ^ (oscillator_6_io_oscillator ^ oscillator_7_io_oscillator));
-
-endmodule
-
 module SpiMaster (
   output wire [0:0]    io_spi_ss,
   output wire          io_spi_sclk,
@@ -725,22 +791,23 @@ module SpiMaster (
   input  wire          rst_n
 );
   localparam fsm_dataSend_fsm_enumDef_BOOT = 5'd0;
-  localparam fsm_dataSend_fsm_enumDef_clockB7 = 5'd1;
-  localparam fsm_dataSend_fsm_enumDef_driveB7 = 5'd2;
-  localparam fsm_dataSend_fsm_enumDef_clockB6 = 5'd3;
-  localparam fsm_dataSend_fsm_enumDef_driveB6 = 5'd4;
-  localparam fsm_dataSend_fsm_enumDef_clockB5 = 5'd5;
-  localparam fsm_dataSend_fsm_enumDef_driveB5 = 5'd6;
-  localparam fsm_dataSend_fsm_enumDef_clockB4 = 5'd7;
-  localparam fsm_dataSend_fsm_enumDef_driveB4 = 5'd8;
-  localparam fsm_dataSend_fsm_enumDef_clockB3 = 5'd9;
-  localparam fsm_dataSend_fsm_enumDef_driveB3 = 5'd10;
-  localparam fsm_dataSend_fsm_enumDef_clockB2 = 5'd11;
-  localparam fsm_dataSend_fsm_enumDef_driveB2 = 5'd12;
-  localparam fsm_dataSend_fsm_enumDef_clockB1 = 5'd13;
-  localparam fsm_dataSend_fsm_enumDef_driveB1 = 5'd14;
-  localparam fsm_dataSend_fsm_enumDef_clockB0 = 5'd15;
-  localparam fsm_dataSend_fsm_enumDef_driveB0 = 5'd16;
+  localparam fsm_dataSend_fsm_enumDef_exitState = 5'd1;
+  localparam fsm_dataSend_fsm_enumDef_clockB7 = 5'd2;
+  localparam fsm_dataSend_fsm_enumDef_driveB7 = 5'd3;
+  localparam fsm_dataSend_fsm_enumDef_clockB6 = 5'd4;
+  localparam fsm_dataSend_fsm_enumDef_driveB6 = 5'd5;
+  localparam fsm_dataSend_fsm_enumDef_clockB5 = 5'd6;
+  localparam fsm_dataSend_fsm_enumDef_driveB5 = 5'd7;
+  localparam fsm_dataSend_fsm_enumDef_clockB4 = 5'd8;
+  localparam fsm_dataSend_fsm_enumDef_driveB4 = 5'd9;
+  localparam fsm_dataSend_fsm_enumDef_clockB3 = 5'd10;
+  localparam fsm_dataSend_fsm_enumDef_driveB3 = 5'd11;
+  localparam fsm_dataSend_fsm_enumDef_clockB2 = 5'd12;
+  localparam fsm_dataSend_fsm_enumDef_driveB2 = 5'd13;
+  localparam fsm_dataSend_fsm_enumDef_clockB1 = 5'd14;
+  localparam fsm_dataSend_fsm_enumDef_driveB1 = 5'd15;
+  localparam fsm_dataSend_fsm_enumDef_clockB0 = 5'd16;
+  localparam fsm_dataSend_fsm_enumDef_driveB0 = 5'd17;
   localparam fsm_enumDef_1_BOOT = 3'd0;
   localparam fsm_enumDef_1_idle = 3'd1;
   localparam fsm_enumDef_1_txBegin = 3'd2;
@@ -755,6 +822,7 @@ module SpiMaster (
   reg                 spi_sclk;
   reg                 spi_mosi;
   reg                 spi_miso;
+  reg                 en;
   wire                fsm_wantExit;
   reg                 fsm_wantStart;
   wire                fsm_wantKill;
@@ -767,8 +835,8 @@ module SpiMaster (
   reg        [2:0]    fsm_stateNext;
   wire                when_StateMachine_l253;
   `ifndef SYNTHESIS
-  reg [55:0] fsm_dataSend_fsm_stateReg_string;
-  reg [55:0] fsm_dataSend_fsm_stateNext_string;
+  reg [71:0] fsm_dataSend_fsm_stateReg_string;
+  reg [71:0] fsm_dataSend_fsm_stateNext_string;
   reg [63:0] fsm_stateReg_string;
   reg [63:0] fsm_stateNext_string;
   `endif
@@ -777,46 +845,48 @@ module SpiMaster (
   `ifndef SYNTHESIS
   always @(*) begin
     case(fsm_dataSend_fsm_stateReg)
-      fsm_dataSend_fsm_enumDef_BOOT : fsm_dataSend_fsm_stateReg_string = "BOOT   ";
-      fsm_dataSend_fsm_enumDef_clockB7 : fsm_dataSend_fsm_stateReg_string = "clockB7";
-      fsm_dataSend_fsm_enumDef_driveB7 : fsm_dataSend_fsm_stateReg_string = "driveB7";
-      fsm_dataSend_fsm_enumDef_clockB6 : fsm_dataSend_fsm_stateReg_string = "clockB6";
-      fsm_dataSend_fsm_enumDef_driveB6 : fsm_dataSend_fsm_stateReg_string = "driveB6";
-      fsm_dataSend_fsm_enumDef_clockB5 : fsm_dataSend_fsm_stateReg_string = "clockB5";
-      fsm_dataSend_fsm_enumDef_driveB5 : fsm_dataSend_fsm_stateReg_string = "driveB5";
-      fsm_dataSend_fsm_enumDef_clockB4 : fsm_dataSend_fsm_stateReg_string = "clockB4";
-      fsm_dataSend_fsm_enumDef_driveB4 : fsm_dataSend_fsm_stateReg_string = "driveB4";
-      fsm_dataSend_fsm_enumDef_clockB3 : fsm_dataSend_fsm_stateReg_string = "clockB3";
-      fsm_dataSend_fsm_enumDef_driveB3 : fsm_dataSend_fsm_stateReg_string = "driveB3";
-      fsm_dataSend_fsm_enumDef_clockB2 : fsm_dataSend_fsm_stateReg_string = "clockB2";
-      fsm_dataSend_fsm_enumDef_driveB2 : fsm_dataSend_fsm_stateReg_string = "driveB2";
-      fsm_dataSend_fsm_enumDef_clockB1 : fsm_dataSend_fsm_stateReg_string = "clockB1";
-      fsm_dataSend_fsm_enumDef_driveB1 : fsm_dataSend_fsm_stateReg_string = "driveB1";
-      fsm_dataSend_fsm_enumDef_clockB0 : fsm_dataSend_fsm_stateReg_string = "clockB0";
-      fsm_dataSend_fsm_enumDef_driveB0 : fsm_dataSend_fsm_stateReg_string = "driveB0";
-      default : fsm_dataSend_fsm_stateReg_string = "???????";
+      fsm_dataSend_fsm_enumDef_BOOT : fsm_dataSend_fsm_stateReg_string = "BOOT     ";
+      fsm_dataSend_fsm_enumDef_exitState : fsm_dataSend_fsm_stateReg_string = "exitState";
+      fsm_dataSend_fsm_enumDef_clockB7 : fsm_dataSend_fsm_stateReg_string = "clockB7  ";
+      fsm_dataSend_fsm_enumDef_driveB7 : fsm_dataSend_fsm_stateReg_string = "driveB7  ";
+      fsm_dataSend_fsm_enumDef_clockB6 : fsm_dataSend_fsm_stateReg_string = "clockB6  ";
+      fsm_dataSend_fsm_enumDef_driveB6 : fsm_dataSend_fsm_stateReg_string = "driveB6  ";
+      fsm_dataSend_fsm_enumDef_clockB5 : fsm_dataSend_fsm_stateReg_string = "clockB5  ";
+      fsm_dataSend_fsm_enumDef_driveB5 : fsm_dataSend_fsm_stateReg_string = "driveB5  ";
+      fsm_dataSend_fsm_enumDef_clockB4 : fsm_dataSend_fsm_stateReg_string = "clockB4  ";
+      fsm_dataSend_fsm_enumDef_driveB4 : fsm_dataSend_fsm_stateReg_string = "driveB4  ";
+      fsm_dataSend_fsm_enumDef_clockB3 : fsm_dataSend_fsm_stateReg_string = "clockB3  ";
+      fsm_dataSend_fsm_enumDef_driveB3 : fsm_dataSend_fsm_stateReg_string = "driveB3  ";
+      fsm_dataSend_fsm_enumDef_clockB2 : fsm_dataSend_fsm_stateReg_string = "clockB2  ";
+      fsm_dataSend_fsm_enumDef_driveB2 : fsm_dataSend_fsm_stateReg_string = "driveB2  ";
+      fsm_dataSend_fsm_enumDef_clockB1 : fsm_dataSend_fsm_stateReg_string = "clockB1  ";
+      fsm_dataSend_fsm_enumDef_driveB1 : fsm_dataSend_fsm_stateReg_string = "driveB1  ";
+      fsm_dataSend_fsm_enumDef_clockB0 : fsm_dataSend_fsm_stateReg_string = "clockB0  ";
+      fsm_dataSend_fsm_enumDef_driveB0 : fsm_dataSend_fsm_stateReg_string = "driveB0  ";
+      default : fsm_dataSend_fsm_stateReg_string = "?????????";
     endcase
   end
   always @(*) begin
     case(fsm_dataSend_fsm_stateNext)
-      fsm_dataSend_fsm_enumDef_BOOT : fsm_dataSend_fsm_stateNext_string = "BOOT   ";
-      fsm_dataSend_fsm_enumDef_clockB7 : fsm_dataSend_fsm_stateNext_string = "clockB7";
-      fsm_dataSend_fsm_enumDef_driveB7 : fsm_dataSend_fsm_stateNext_string = "driveB7";
-      fsm_dataSend_fsm_enumDef_clockB6 : fsm_dataSend_fsm_stateNext_string = "clockB6";
-      fsm_dataSend_fsm_enumDef_driveB6 : fsm_dataSend_fsm_stateNext_string = "driveB6";
-      fsm_dataSend_fsm_enumDef_clockB5 : fsm_dataSend_fsm_stateNext_string = "clockB5";
-      fsm_dataSend_fsm_enumDef_driveB5 : fsm_dataSend_fsm_stateNext_string = "driveB5";
-      fsm_dataSend_fsm_enumDef_clockB4 : fsm_dataSend_fsm_stateNext_string = "clockB4";
-      fsm_dataSend_fsm_enumDef_driveB4 : fsm_dataSend_fsm_stateNext_string = "driveB4";
-      fsm_dataSend_fsm_enumDef_clockB3 : fsm_dataSend_fsm_stateNext_string = "clockB3";
-      fsm_dataSend_fsm_enumDef_driveB3 : fsm_dataSend_fsm_stateNext_string = "driveB3";
-      fsm_dataSend_fsm_enumDef_clockB2 : fsm_dataSend_fsm_stateNext_string = "clockB2";
-      fsm_dataSend_fsm_enumDef_driveB2 : fsm_dataSend_fsm_stateNext_string = "driveB2";
-      fsm_dataSend_fsm_enumDef_clockB1 : fsm_dataSend_fsm_stateNext_string = "clockB1";
-      fsm_dataSend_fsm_enumDef_driveB1 : fsm_dataSend_fsm_stateNext_string = "driveB1";
-      fsm_dataSend_fsm_enumDef_clockB0 : fsm_dataSend_fsm_stateNext_string = "clockB0";
-      fsm_dataSend_fsm_enumDef_driveB0 : fsm_dataSend_fsm_stateNext_string = "driveB0";
-      default : fsm_dataSend_fsm_stateNext_string = "???????";
+      fsm_dataSend_fsm_enumDef_BOOT : fsm_dataSend_fsm_stateNext_string = "BOOT     ";
+      fsm_dataSend_fsm_enumDef_exitState : fsm_dataSend_fsm_stateNext_string = "exitState";
+      fsm_dataSend_fsm_enumDef_clockB7 : fsm_dataSend_fsm_stateNext_string = "clockB7  ";
+      fsm_dataSend_fsm_enumDef_driveB7 : fsm_dataSend_fsm_stateNext_string = "driveB7  ";
+      fsm_dataSend_fsm_enumDef_clockB6 : fsm_dataSend_fsm_stateNext_string = "clockB6  ";
+      fsm_dataSend_fsm_enumDef_driveB6 : fsm_dataSend_fsm_stateNext_string = "driveB6  ";
+      fsm_dataSend_fsm_enumDef_clockB5 : fsm_dataSend_fsm_stateNext_string = "clockB5  ";
+      fsm_dataSend_fsm_enumDef_driveB5 : fsm_dataSend_fsm_stateNext_string = "driveB5  ";
+      fsm_dataSend_fsm_enumDef_clockB4 : fsm_dataSend_fsm_stateNext_string = "clockB4  ";
+      fsm_dataSend_fsm_enumDef_driveB4 : fsm_dataSend_fsm_stateNext_string = "driveB4  ";
+      fsm_dataSend_fsm_enumDef_clockB3 : fsm_dataSend_fsm_stateNext_string = "clockB3  ";
+      fsm_dataSend_fsm_enumDef_driveB3 : fsm_dataSend_fsm_stateNext_string = "driveB3  ";
+      fsm_dataSend_fsm_enumDef_clockB2 : fsm_dataSend_fsm_stateNext_string = "clockB2  ";
+      fsm_dataSend_fsm_enumDef_driveB2 : fsm_dataSend_fsm_stateNext_string = "driveB2  ";
+      fsm_dataSend_fsm_enumDef_clockB1 : fsm_dataSend_fsm_stateNext_string = "clockB1  ";
+      fsm_dataSend_fsm_enumDef_driveB1 : fsm_dataSend_fsm_stateNext_string = "driveB1  ";
+      fsm_dataSend_fsm_enumDef_clockB0 : fsm_dataSend_fsm_stateNext_string = "clockB0  ";
+      fsm_dataSend_fsm_enumDef_driveB0 : fsm_dataSend_fsm_stateNext_string = "driveB0  ";
+      default : fsm_dataSend_fsm_stateNext_string = "?????????";
     endcase
   end
   always @(*) begin
@@ -874,11 +944,9 @@ module SpiMaster (
       fsm_enumDef_1_txBegin : begin
       end
       fsm_enumDef_1_dataSend : begin
-        if(fsm_dataSend_fsm_wantExit) begin
-          io_resp_valid = 1'b1;
-        end
       end
       fsm_enumDef_1_txEnd : begin
+        io_resp_valid = 1'b1;
       end
       default : begin
       end
@@ -908,8 +976,12 @@ module SpiMaster (
   always @(*) begin
     fsm_dataSend_fsm_wantExit = 1'b0;
     case(fsm_dataSend_fsm_stateReg)
+      fsm_dataSend_fsm_enumDef_exitState : begin
+        if(en) begin
+          fsm_dataSend_fsm_wantExit = 1'b1;
+        end
+      end
       fsm_dataSend_fsm_enumDef_clockB7 : begin
-        fsm_dataSend_fsm_wantExit = 1'b1;
       end
       fsm_dataSend_fsm_enumDef_driveB7 : begin
       end
@@ -957,53 +1029,90 @@ module SpiMaster (
   always @(*) begin
     fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_stateReg;
     case(fsm_dataSend_fsm_stateReg)
+      fsm_dataSend_fsm_enumDef_exitState : begin
+        if(en) begin
+          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_BOOT;
+        end
+      end
       fsm_dataSend_fsm_enumDef_clockB7 : begin
-        fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_BOOT;
+        if(en) begin
+          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_exitState;
+        end
       end
       fsm_dataSend_fsm_enumDef_driveB7 : begin
-        fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB7;
+        if(en) begin
+          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB7;
+        end
       end
       fsm_dataSend_fsm_enumDef_clockB6 : begin
-        fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB7;
+        if(en) begin
+          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB7;
+        end
       end
       fsm_dataSend_fsm_enumDef_driveB6 : begin
-        fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB6;
+        if(en) begin
+          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB6;
+        end
       end
       fsm_dataSend_fsm_enumDef_clockB5 : begin
-        fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB6;
+        if(en) begin
+          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB6;
+        end
       end
       fsm_dataSend_fsm_enumDef_driveB5 : begin
-        fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB5;
+        if(en) begin
+          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB5;
+        end
       end
       fsm_dataSend_fsm_enumDef_clockB4 : begin
-        fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB5;
+        if(en) begin
+          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB5;
+        end
       end
       fsm_dataSend_fsm_enumDef_driveB4 : begin
-        fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB4;
+        if(en) begin
+          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB4;
+        end
       end
       fsm_dataSend_fsm_enumDef_clockB3 : begin
-        fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB4;
+        if(en) begin
+          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB4;
+        end
       end
       fsm_dataSend_fsm_enumDef_driveB3 : begin
-        fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB3;
+        if(en) begin
+          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB3;
+        end
       end
       fsm_dataSend_fsm_enumDef_clockB2 : begin
-        fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB3;
+        if(en) begin
+          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB3;
+        end
       end
       fsm_dataSend_fsm_enumDef_driveB2 : begin
-        fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB2;
+        if(en) begin
+          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB2;
+        end
       end
       fsm_dataSend_fsm_enumDef_clockB1 : begin
-        fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB2;
+        if(en) begin
+          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB2;
+        end
       end
       fsm_dataSend_fsm_enumDef_driveB1 : begin
-        fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB1;
+        if(en) begin
+          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB1;
+        end
       end
       fsm_dataSend_fsm_enumDef_clockB0 : begin
-        fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB1;
+        if(en) begin
+          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB1;
+        end
       end
       fsm_dataSend_fsm_enumDef_driveB0 : begin
-        fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB0;
+        if(en) begin
+          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB0;
+        end
       end
       default : begin
       end
@@ -1061,61 +1170,95 @@ module SpiMaster (
     end else begin
       fsm_dataSend_fsm_stateReg <= fsm_dataSend_fsm_stateNext;
       case(fsm_dataSend_fsm_stateReg)
+        fsm_dataSend_fsm_enumDef_exitState : begin
+        end
         fsm_dataSend_fsm_enumDef_clockB7 : begin
-          spi_sclk <= sclk_active;
+          if(en) begin
+            spi_sclk <= sclk_active;
+          end
         end
         fsm_dataSend_fsm_enumDef_driveB7 : begin
-          spi_sclk <= (! sclk_active);
-          spi_mosi <= dataOut[7];
+          if(en) begin
+            spi_sclk <= (! sclk_active);
+            spi_mosi <= dataOut[7];
+          end
         end
         fsm_dataSend_fsm_enumDef_clockB6 : begin
-          spi_sclk <= sclk_active;
+          if(en) begin
+            spi_sclk <= sclk_active;
+          end
         end
         fsm_dataSend_fsm_enumDef_driveB6 : begin
-          spi_sclk <= (! sclk_active);
-          spi_mosi <= dataOut[7];
+          if(en) begin
+            spi_sclk <= (! sclk_active);
+            spi_mosi <= dataOut[7];
+          end
         end
         fsm_dataSend_fsm_enumDef_clockB5 : begin
-          spi_sclk <= sclk_active;
+          if(en) begin
+            spi_sclk <= sclk_active;
+          end
         end
         fsm_dataSend_fsm_enumDef_driveB5 : begin
-          spi_sclk <= (! sclk_active);
-          spi_mosi <= dataOut[7];
+          if(en) begin
+            spi_sclk <= (! sclk_active);
+            spi_mosi <= dataOut[7];
+          end
         end
         fsm_dataSend_fsm_enumDef_clockB4 : begin
-          spi_sclk <= sclk_active;
+          if(en) begin
+            spi_sclk <= sclk_active;
+          end
         end
         fsm_dataSend_fsm_enumDef_driveB4 : begin
-          spi_sclk <= (! sclk_active);
-          spi_mosi <= dataOut[7];
+          if(en) begin
+            spi_sclk <= (! sclk_active);
+            spi_mosi <= dataOut[7];
+          end
         end
         fsm_dataSend_fsm_enumDef_clockB3 : begin
-          spi_sclk <= sclk_active;
+          if(en) begin
+            spi_sclk <= sclk_active;
+          end
         end
         fsm_dataSend_fsm_enumDef_driveB3 : begin
-          spi_sclk <= (! sclk_active);
-          spi_mosi <= dataOut[7];
+          if(en) begin
+            spi_sclk <= (! sclk_active);
+            spi_mosi <= dataOut[7];
+          end
         end
         fsm_dataSend_fsm_enumDef_clockB2 : begin
-          spi_sclk <= sclk_active;
+          if(en) begin
+            spi_sclk <= sclk_active;
+          end
         end
         fsm_dataSend_fsm_enumDef_driveB2 : begin
-          spi_sclk <= (! sclk_active);
-          spi_mosi <= dataOut[7];
+          if(en) begin
+            spi_sclk <= (! sclk_active);
+            spi_mosi <= dataOut[7];
+          end
         end
         fsm_dataSend_fsm_enumDef_clockB1 : begin
-          spi_sclk <= sclk_active;
+          if(en) begin
+            spi_sclk <= sclk_active;
+          end
         end
         fsm_dataSend_fsm_enumDef_driveB1 : begin
-          spi_sclk <= (! sclk_active);
-          spi_mosi <= dataOut[7];
+          if(en) begin
+            spi_sclk <= (! sclk_active);
+            spi_mosi <= dataOut[7];
+          end
         end
         fsm_dataSend_fsm_enumDef_clockB0 : begin
-          spi_sclk <= sclk_active;
+          if(en) begin
+            spi_sclk <= sclk_active;
+          end
         end
         fsm_dataSend_fsm_enumDef_driveB0 : begin
-          spi_sclk <= (! sclk_active);
-          spi_mosi <= dataOut[7];
+          if(en) begin
+            spi_sclk <= (! sclk_active);
+            spi_mosi <= dataOut[7];
+          end
         end
         default : begin
         end
@@ -1143,51 +1286,71 @@ module SpiMaster (
 
   always @(posedge clk) begin
     spi_miso <= io_spi_miso;
+    en <= (! en);
     case(fsm_dataSend_fsm_stateReg)
+      fsm_dataSend_fsm_enumDef_exitState : begin
+      end
       fsm_dataSend_fsm_enumDef_clockB7 : begin
-        dataIn <= {dataIn[6 : 0],spi_miso};
+        if(en) begin
+          dataOut <= (dataOut <<< 1);
+          dataIn <= {dataIn[6 : 0],spi_miso};
+        end
       end
       fsm_dataSend_fsm_enumDef_driveB7 : begin
       end
       fsm_dataSend_fsm_enumDef_clockB6 : begin
-        dataOut <= (dataOut <<< 1);
-        dataIn <= {dataIn[6 : 0],spi_miso};
+        if(en) begin
+          dataOut <= (dataOut <<< 1);
+          dataIn <= {dataIn[6 : 0],spi_miso};
+        end
       end
       fsm_dataSend_fsm_enumDef_driveB6 : begin
       end
       fsm_dataSend_fsm_enumDef_clockB5 : begin
-        dataOut <= (dataOut <<< 1);
-        dataIn <= {dataIn[6 : 0],spi_miso};
+        if(en) begin
+          dataOut <= (dataOut <<< 1);
+          dataIn <= {dataIn[6 : 0],spi_miso};
+        end
       end
       fsm_dataSend_fsm_enumDef_driveB5 : begin
       end
       fsm_dataSend_fsm_enumDef_clockB4 : begin
-        dataOut <= (dataOut <<< 1);
-        dataIn <= {dataIn[6 : 0],spi_miso};
+        if(en) begin
+          dataOut <= (dataOut <<< 1);
+          dataIn <= {dataIn[6 : 0],spi_miso};
+        end
       end
       fsm_dataSend_fsm_enumDef_driveB4 : begin
       end
       fsm_dataSend_fsm_enumDef_clockB3 : begin
-        dataOut <= (dataOut <<< 1);
-        dataIn <= {dataIn[6 : 0],spi_miso};
+        if(en) begin
+          dataOut <= (dataOut <<< 1);
+          dataIn <= {dataIn[6 : 0],spi_miso};
+        end
       end
       fsm_dataSend_fsm_enumDef_driveB3 : begin
       end
       fsm_dataSend_fsm_enumDef_clockB2 : begin
-        dataOut <= (dataOut <<< 1);
-        dataIn <= {dataIn[6 : 0],spi_miso};
+        if(en) begin
+          dataOut <= (dataOut <<< 1);
+          dataIn <= {dataIn[6 : 0],spi_miso};
+        end
       end
       fsm_dataSend_fsm_enumDef_driveB2 : begin
       end
       fsm_dataSend_fsm_enumDef_clockB1 : begin
-        dataOut <= (dataOut <<< 1);
-        dataIn <= {dataIn[6 : 0],spi_miso};
+        if(en) begin
+          dataOut <= (dataOut <<< 1);
+          dataIn <= {dataIn[6 : 0],spi_miso};
+        end
       end
       fsm_dataSend_fsm_enumDef_driveB1 : begin
       end
       fsm_dataSend_fsm_enumDef_clockB0 : begin
-        dataOut <= (dataOut <<< 1);
-        dataIn <= {dataIn[6 : 0],spi_miso};
+        if(en) begin
+          dataOut <= (dataOut <<< 1);
+          dataIn <= {dataIn[6 : 0],spi_miso};
+        end
       end
       fsm_dataSend_fsm_enumDef_driveB0 : begin
       end
@@ -1227,7 +1390,8 @@ module Oscillator (
   input  wire [11:0]   io_increment,
   output wire          io_oscillator,
   input  wire          clk,
-  input  wire          rst_n
+  input  wire          rst_n,
+  input  wire          enableArea_newClockEnable
 );
 
   reg        [11:0]   counter;
@@ -1237,7 +1401,9 @@ module Oscillator (
     if(!rst_n) begin
       counter <= 12'h0;
     end else begin
-      counter <= (counter + io_increment);
+      if(enableArea_newClockEnable) begin
+        counter <= (counter + io_increment);
+      end
     end
   end
 
