@@ -31,7 +31,7 @@ case class TapeoutTop() extends Component {
   io.uio.read.setName("uio_in")
   ClockDomain.current.reset.setName("rst_n")
   noIoPrefix()
-  setDefinitionName("tt_um_elegans_design")
+  setDefinitionName("tt_um_monotone_player")
 
   io.uio.writeEnable := 0
   io.uio.write := 0
@@ -52,13 +52,14 @@ case class TapeoutTop() extends Component {
 
 }
 case class Top(width: Int) extends Component {
+  val numOscillators = 3
   val io = new Bundle {
     val spi = master(com.spi.SpiMaster(ssWidth =1, useSclk = true))
     val osc = out(Bool())
   }
-  val oscillatorControl = OscillatorControl(4, 1024)
+  val oscillatorControl = OscillatorControl(numOscillators, 1024)
   val enableArea = new ClockEnableArea(oscillatorControl.io.oscillator_en){
-    val oscillatorGroup = OscillatorGroup(12, 4)
+    val oscillatorGroup = OscillatorGroup(12, numOscillators)
   }
 
   val spiRom = SpiRom()

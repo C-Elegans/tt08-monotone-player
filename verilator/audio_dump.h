@@ -21,7 +21,7 @@ public:
 
     void writeSample(){
 	float sampleFraction = sampleData / (float) sampleCount;
-	int8_t sample = 127 * sampleFraction;
+	int8_t sample = 32 * sampleFraction;
 	fwrite(&sample, 1, 1, f);
 	sampleCount = 0;
 	sampleData = 0;

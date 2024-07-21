@@ -64,10 +64,36 @@ def note(note_str, oscillator=0):
 def frame():
     f.write(struct.pack('B', 0))
     
+
 note('C4')
+note('G4',1)
 frame()
 frame()
+frame()
+frame()
+
+
+note('C4')
+note('',1)
+frame()
+frame()
+note('D4')
 frame()
 frame()
 note('E4')
+frame()
+frame()
+note('F4')
+frame()
+frame()
+note('G4')
+frame()
+frame()
+note('A4')
+frame()
+frame()
+note('B4')
+frame()
+frame()
+note('C5')
     

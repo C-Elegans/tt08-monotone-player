@@ -56,16 +56,19 @@ case class OscillatorControl(numOscillators: Int, frameLength: Int) extends Comp
               oscillatorMsb := data
               goto(setOscillatorRead)
             }
+            if(numOscillators >= 2)
             is(0xd) {
               oscillatorSel := 1
               oscillatorMsb := data
               goto(setOscillatorRead)
             }
+            if(numOscillators >= 3)
             is(0xe) {
               oscillatorSel := 2
               oscillatorMsb := data
               goto(setOscillatorRead)
             }
+            if(numOscillators >= 4)
             is(0xf) {
               oscillatorSel := 3
               oscillatorMsb := data
