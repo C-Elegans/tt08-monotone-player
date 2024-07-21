@@ -51,6 +51,8 @@ case class TapeoutTop() extends Component {
   io.uo_out(7) := top.io.osc
 
 }
+
+
 case class Top(width: Int) extends Component {
   val numOscillators = 3
   val io = new Bundle {

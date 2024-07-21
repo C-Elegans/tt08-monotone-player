@@ -1,0 +1,7 @@
+set_io --warn-no-port clk_12 J3
+
+set_io --warn-no-port spi_ss C16
+set_io --warn-no-port spi_sclk D16
+set_io --warn-no-port spi_mosi E16
+set_io --warn-no-port spi_miso F16
+set_io --warn-no-port audio_out G16
