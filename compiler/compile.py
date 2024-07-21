@@ -38,20 +38,24 @@ def note_frequency(note_str):
     m = note_regex.search(note_str)
     if not m:
         raise RuntimeError("Invalid note")
-    print(m.groups())
     note_frequency = notes[m.group(1)]
     power = int(m.group(2)) - 4
     return note_frequency * pow(2, power)
 
 def oscillator_frequency(divider):
-    return prescale_frequency / ((2**12) / divider)
+    return prescale_frequency * divider / (2**12)
 
 def calc_divider(frequency):
     return int(frequency * 2**12 / prescale_frequency)
     
 
 def note(note_str, oscillator=0):
-    div = calc_divider(note_frequency(note_str))
+    freq = note_frequency(note_str)
+    period = 1/freq * 1e6 if freq else 0
+    print(f'{note_str} = {freq} Hz, {period=} us')
+    div = calc_divider(freq)
+    if div:
+        div -= 1
     cmd1 = (0x3 << 6) | (oscillator << 4) | ((div >> 8) & 0xF)
     f.write(struct.pack('B', cmd1))
     cmd2 = div & 0xff
@@ -61,14 +65,8 @@ def frame():
     f.write(struct.pack('B', 0))
     
 note('C4')
-note('E4', 1)
-note('G4', 2)
 frame()
 frame()
-frame()
-note('', 1)
-note('', 2)
-note('D4')
 frame()
 frame()
 note('E4')

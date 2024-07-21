@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.10.2a    git head : a348a60b7e8b6a455c72e1536ec3d74a2ea16935
 // Component : tt_um_elegans_design
-// Git hash  : adc808125934f4a628c586df91e12f4e08400b18
+// Git hash  : fba4698042e9d5bb69017bce982fc1308bf1f548
 
 `timescale 1ns/1ps
 
@@ -19,16 +19,16 @@ module tt_um_elegans_design (
   wire                top_1_spi_sclk;
   wire                top_1_spi_mosi;
   wire       [0:0]    top_1_spi_ss;
-  wire                top_1_oscillator_4;
+  wire                top_1_osc;
 
   Top top_1 (
-    .spi_ss       (top_1_spi_ss      ), //o
-    .spi_sclk     (top_1_spi_sclk    ), //o
-    .spi_mosi     (top_1_spi_mosi    ), //o
-    .spi_miso     (top_1_spi_miso    ), //i
-    .oscillator_4 (top_1_oscillator_4), //o
-    .clk          (clk               ), //i
-    .rst_n        (rst_n             )  //i
+    .spi_ss   (top_1_spi_ss  ), //o
+    .spi_sclk (top_1_spi_sclk), //o
+    .spi_mosi (top_1_spi_mosi), //o
+    .spi_miso (top_1_spi_miso), //i
+    .osc      (top_1_osc     ), //o
+    .clk      (clk           ), //i
+    .rst_n    (rst_n         )  //i
   );
   assign uio_oe = 8'h0;
   assign uio_out = 8'h0;
@@ -37,7 +37,7 @@ module tt_um_elegans_design (
     uo_out[0] = top_1_spi_ss[0];
     uo_out[1] = top_1_spi_sclk;
     uo_out[2] = top_1_spi_mosi;
-    uo_out[7] = top_1_oscillator_4;
+    uo_out[7] = top_1_osc;
   end
 
   assign top_1_spi_miso = ui_in[0];
@@ -49,7 +49,7 @@ module Top (
   output wire          spi_sclk,
   output wire          spi_mosi,
   input  wire          spi_miso,
-  output wire          oscillator_4,
+  output wire          osc,
   input  wire          clk,
   input  wire          rst_n
 );
@@ -111,7 +111,7 @@ module Top (
   assign spi_ss = spiRom_1_io_spi_ss;
   assign spi_sclk = spiRom_1_io_spi_sclk;
   assign spi_mosi = spiRom_1_io_spi_mosi;
-  assign oscillator_4 = enableArea_oscillatorGroup_io_oscillator;
+  assign osc = enableArea_oscillatorGroup_io_oscillator;
 
 endmodule
 

@@ -48,13 +48,13 @@ case class TapeoutTop() extends Component {
   top.io.spi.miso := io.ui_in(0)
 
 
-  io.uo_out(7) := top.io.oscillator
+  io.uo_out(7) := top.io.osc
 
 }
 case class Top(width: Int) extends Component {
   val io = new Bundle {
     val spi = master(com.spi.SpiMaster(ssWidth =1, useSclk = true))
-    val oscillator = out(Bool())
+    val osc = out(Bool())
   }
   val oscillatorControl = OscillatorControl(4, 1024)
   val enableArea = new ClockEnableArea(oscillatorControl.io.oscillator_en){
@@ -67,7 +67,7 @@ case class Top(width: Int) extends Component {
   oscillatorControl.io.readReq >> spiRom.io.readReq
   oscillatorControl.io.readResp << spiRom.io.readResp
   enableArea.oscillatorGroup.io.increments := oscillatorControl.io.oscillatorIncrements
-  io.oscillator := enableArea.oscillatorGroup.io.oscillator
+  io.osc := enableArea.oscillatorGroup.io.oscillator
 
   noIoPrefix();
 }
