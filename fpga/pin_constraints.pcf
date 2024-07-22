@@ -5,3 +5,4 @@ set_io --warn-no-port spi_sclk D16
 set_io --warn-no-port spi_mosi E16
 set_io --warn-no-port spi_miso F16
 set_io --warn-no-port audio_out G16
+set_io --warn-no-port rst_n H16

@@ -6,7 +6,7 @@ note_regex = re.compile(r'^([A-Ga-g][#b]?)([0-9])$')
 
 A = 440
 clock_frequency = 20e6
-prescaler = 2**12
+prescaler = 2**6
 prescale_frequency = clock_frequency / prescaler
 
 
@@ -46,7 +46,9 @@ def oscillator_frequency(divider):
     return prescale_frequency * divider / (2**12)
 
 def calc_divider(frequency):
-    return int(frequency * 2**12 / prescale_frequency)
+    if frequency == 0:
+        return 0
+    return int(prescale_frequency / frequency)
     
 
 def note(note_str, oscillator=0):

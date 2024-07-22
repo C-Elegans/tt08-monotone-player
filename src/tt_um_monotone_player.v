@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.10.2a    git head : a348a60b7e8b6a455c72e1536ec3d74a2ea16935
 // Component : tt_um_monotone_player
-// Git hash  : 6d6e129a44e76a5e1932284d56be3f16c58554f3
+// Git hash  : 24bff9a8515f57fa240fe059018762c508e687d7
 
 `timescale 1ns/1ps
 
@@ -145,8 +145,11 @@ module SpiRom (
   wire                fsm_wantExit;
   reg                 fsm_wantStart;
   wire                fsm_wantKill;
+  reg        [5:0]    _zz_when_State_l238;
   reg        [2:0]    fsm_stateReg;
   reg        [2:0]    fsm_stateNext;
+  wire                when_State_l238;
+  wire                when_StateMachine_l253;
   `ifndef SYNTHESIS
   reg [95:0] fsm_stateReg_string;
   reg [95:0] fsm_stateNext_string;
@@ -380,7 +383,9 @@ module SpiRom (
         end
       end
       fsm_enumDef_waitSS : begin
-        fsm_stateNext = fsm_enumDef_idle;
+        if(when_State_l238) begin
+          fsm_stateNext = fsm_enumDef_idle;
+        end
       end
       default : begin
       end
@@ -393,11 +398,38 @@ module SpiRom (
     end
   end
 
+  assign when_State_l238 = (_zz_when_State_l238 <= 6'h01);
+  assign when_StateMachine_l253 = ((! (fsm_stateReg == fsm_enumDef_waitSS)) && (fsm_stateNext == fsm_enumDef_waitSS));
   always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
       fsm_stateReg <= fsm_enumDef_BOOT;
     end else begin
       fsm_stateReg <= fsm_stateNext;
+    end
+  end
+
+  always @(posedge clk) begin
+    case(fsm_stateReg)
+      fsm_enumDef_idle : begin
+      end
+      fsm_enumDef_readCmd : begin
+      end
+      fsm_enumDef_readAddr1 : begin
+      end
+      fsm_enumDef_readAddr2 : begin
+      end
+      fsm_enumDef_readData : begin
+      end
+      fsm_enumDef_readDataWait : begin
+      end
+      fsm_enumDef_waitSS : begin
+        _zz_when_State_l238 <= (_zz_when_State_l238 - 6'h01);
+      end
+      default : begin
+      end
+    endcase
+    if(when_StateMachine_l253) begin
+      _zz_when_State_l238 <= 6'h3f;
     end
   end
 
@@ -417,8 +449,15 @@ module OscillatorGroup (
   wire                oscillator_3_io_oscillator;
   wire                oscillator_4_io_oscillator;
   wire                oscillator_5_io_oscillator;
+  reg        [1:0]    _zz_sigmaDelta_increment;
+  wire       [2:0]    _zz_sigmaDelta_increment_1;
   wire       [2:0]    oscillatorOutputs;
+  wire       [1:0]    sigmaDelta_increment;
+  reg        [1:0]    sigmaDelta_counter;
+  wire       [2:0]    sigmaDelta_countResult;
+  reg                 _zz_io_oscillator;
 
+  assign _zz_sigmaDelta_increment_1 = {oscillator_5_io_oscillator,{oscillator_4_io_oscillator,oscillator_3_io_oscillator}};
   Oscillator oscillator_3 (
     .io_increment              (io_increments_0[11:0]     ), //i
     .io_oscillator             (oscillator_3_io_oscillator), //o
@@ -440,7 +479,38 @@ module OscillatorGroup (
     .rst_n                     (rst_n                     ), //i
     .enableArea_newClockEnable (enableArea_newClockEnable )  //i
   );
-  assign io_oscillator = ((oscillator_3_io_oscillator ^ oscillator_4_io_oscillator) ^ oscillator_5_io_oscillator);
+  always @(*) begin
+    case(_zz_sigmaDelta_increment_1)
+      3'b000 : _zz_sigmaDelta_increment = 2'b00;
+      3'b001 : _zz_sigmaDelta_increment = 2'b01;
+      3'b010 : _zz_sigmaDelta_increment = 2'b01;
+      3'b011 : _zz_sigmaDelta_increment = 2'b10;
+      3'b100 : _zz_sigmaDelta_increment = 2'b01;
+      3'b101 : _zz_sigmaDelta_increment = 2'b10;
+      3'b110 : _zz_sigmaDelta_increment = 2'b10;
+      default : _zz_sigmaDelta_increment = 2'b11;
+    endcase
+  end
+
+  assign sigmaDelta_increment = _zz_sigmaDelta_increment;
+  assign sigmaDelta_countResult = ({1'b0,sigmaDelta_counter} + {1'b0,sigmaDelta_increment});
+  assign io_oscillator = _zz_io_oscillator;
+  always @(posedge clk or negedge rst_n) begin
+    if(!rst_n) begin
+      sigmaDelta_counter <= 2'b00;
+    end else begin
+      if(enableArea_newClockEnable) begin
+        sigmaDelta_counter <= sigmaDelta_countResult[1:0];
+      end
+    end
+  end
+
+  always @(posedge clk) begin
+    if(enableArea_newClockEnable) begin
+      _zz_io_oscillator <= sigmaDelta_countResult[2];
+    end
+  end
+
 
 endmodule
 
@@ -464,22 +534,22 @@ module OscillatorControl (
   localparam controlFsm_enumDef_setOscillatorRead = 3'd4;
   localparam controlFsm_enumDef_setOscillatorData = 3'd5;
 
-  wire       [11:0]   _zz_oscillatorPrescaler_valueNext;
+  wire       [5:0]    _zz_oscillatorPrescaler_valueNext;
   wire       [0:0]    _zz_oscillatorPrescaler_valueNext_1;
-  wire       [9:0]    _zz_counter_valueNext;
+  wire       [15:0]   _zz_counter_valueNext;
   wire       [0:0]    _zz_counter_valueNext_1;
   reg        [15:0]   pc;
   wire                when_Utils_l578;
   reg                 oscillatorPrescaler_willIncrement;
   wire                oscillatorPrescaler_willClear;
-  reg        [11:0]   oscillatorPrescaler_valueNext;
-  reg        [11:0]   oscillatorPrescaler_value;
+  reg        [5:0]    oscillatorPrescaler_valueNext;
+  reg        [5:0]    oscillatorPrescaler_value;
   wire                oscillatorPrescaler_willOverflowIfInc;
   wire                oscillatorPrescaler_willOverflow;
   reg                 counter_willIncrement;
   wire                counter_willClear;
-  reg        [9:0]    counter_valueNext;
-  reg        [9:0]    counter_value;
+  reg        [15:0]   counter_valueNext;
+  reg        [15:0]   counter_value;
   wire                counter_willOverflowIfInc;
   wire                counter_willOverflow;
   reg        [11:0]   oscillatorControl_0;
@@ -503,9 +573,9 @@ module OscillatorControl (
 
 
   assign _zz_oscillatorPrescaler_valueNext_1 = oscillatorPrescaler_willIncrement;
-  assign _zz_oscillatorPrescaler_valueNext = {11'd0, _zz_oscillatorPrescaler_valueNext_1};
+  assign _zz_oscillatorPrescaler_valueNext = {5'd0, _zz_oscillatorPrescaler_valueNext_1};
   assign _zz_counter_valueNext_1 = counter_willIncrement;
-  assign _zz_counter_valueNext = {9'd0, _zz_counter_valueNext_1};
+  assign _zz_counter_valueNext = {15'd0, _zz_counter_valueNext_1};
   `ifndef SYNTHESIS
   always @(*) begin
     case(controlFsm_stateReg)
@@ -540,12 +610,12 @@ module OscillatorControl (
   end
 
   assign oscillatorPrescaler_willClear = 1'b0;
-  assign oscillatorPrescaler_willOverflowIfInc = (oscillatorPrescaler_value == 12'hfff);
+  assign oscillatorPrescaler_willOverflowIfInc = (oscillatorPrescaler_value == 6'h3f);
   assign oscillatorPrescaler_willOverflow = (oscillatorPrescaler_willOverflowIfInc && oscillatorPrescaler_willIncrement);
   always @(*) begin
     oscillatorPrescaler_valueNext = (oscillatorPrescaler_value + _zz_oscillatorPrescaler_valueNext);
     if(oscillatorPrescaler_willClear) begin
-      oscillatorPrescaler_valueNext = 12'h0;
+      oscillatorPrescaler_valueNext = 6'h0;
     end
   end
 
@@ -558,12 +628,12 @@ module OscillatorControl (
   end
 
   assign counter_willClear = 1'b0;
-  assign counter_willOverflowIfInc = (counter_value == 10'h3ff);
+  assign counter_willOverflowIfInc = (counter_value == 16'hffff);
   assign counter_willOverflow = (counter_willOverflowIfInc && counter_willIncrement);
   always @(*) begin
     counter_valueNext = (counter_value + _zz_counter_valueNext);
     if(counter_willClear) begin
-      counter_valueNext = 10'h0;
+      counter_valueNext = 16'h0;
     end
   end
 
@@ -673,8 +743,8 @@ module OscillatorControl (
   always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
       pc <= 16'h0;
-      oscillatorPrescaler_value <= 12'h0;
-      counter_value <= 10'h0;
+      oscillatorPrescaler_value <= 6'h0;
+      counter_value <= 16'h0;
       controlFsm_stateReg <= controlFsm_enumDef_BOOT;
     end else begin
       oscillatorPrescaler_value <= oscillatorPrescaler_valueNext;
@@ -1368,14 +1438,33 @@ module Oscillator (
 );
 
   reg        [11:0]   counter;
+  reg                 toggle;
+  wire                when_Oscillator_l15;
+  wire                when_Oscillator_l17;
 
-  assign io_oscillator = counter[11];
+  assign when_Oscillator_l15 = (counter == 12'h0);
+  assign when_Oscillator_l17 = (io_increment != 12'h0);
+  assign io_oscillator = toggle;
   always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
       counter <= 12'h0;
     end else begin
       if(enableArea_newClockEnable) begin
-        counter <= (counter + io_increment);
+        if(when_Oscillator_l15) begin
+          counter <= io_increment;
+        end else begin
+          counter <= (counter - 12'h001);
+        end
+      end
+    end
+  end
+
+  always @(posedge clk) begin
+    if(enableArea_newClockEnable) begin
+      if(when_Oscillator_l15) begin
+        if(when_Oscillator_l17) begin
+          toggle <= (! toggle);
+        end
       end
     end
   end

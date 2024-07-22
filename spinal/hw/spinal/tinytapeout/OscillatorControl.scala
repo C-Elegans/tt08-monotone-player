@@ -15,7 +15,7 @@ case class OscillatorControl(numOscillators: Int, frameLength: Int) extends Comp
 
   val pc = Reg(UInt(16 bits)) init(0)
 
-  val oscillatorPrescaler = Counter(4096, True)
+  val oscillatorPrescaler = Counter(64, True)
   val oscillatorEn = oscillatorPrescaler.willOverflow
   io.oscillator_en := oscillatorEn
 

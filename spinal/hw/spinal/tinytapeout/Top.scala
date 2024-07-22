@@ -59,7 +59,7 @@ case class Top(width: Int) extends Component {
     val spi = master(com.spi.SpiMaster(ssWidth =1, useSclk = true))
     val osc = out(Bool())
   }
-  val oscillatorControl = OscillatorControl(numOscillators, 1024)
+  val oscillatorControl = OscillatorControl(numOscillators, 64*1024)
   val enableArea = new ClockEnableArea(oscillatorControl.io.oscillator_en){
     val oscillatorGroup = OscillatorGroup(12, numOscillators)
   }

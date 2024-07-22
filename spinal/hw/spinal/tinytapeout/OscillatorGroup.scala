@@ -17,6 +17,13 @@ case class OscillatorGroup(width: Int, numOscillators: Int) extends Component {
 
     oscillator.io.oscillator
   }
+  val sigmaDelta = new Area {
+    val increment = CountOne(outputs)
 
-  io.oscillator := Vec(outputs).reduceBalancedTree((l, r) => l ^ r)
+    val counter = Reg(cloneOf(increment)) init(0)
+    val countResult = counter +^ increment
+    counter := countResult.resized
+    io.oscillator := RegNext(countResult.msb)
+  }
+
 }

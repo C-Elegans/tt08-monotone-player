@@ -11,7 +11,14 @@ case class Oscillator(width: Int) extends Component {
   }
 
   val counter = Reg(UInt(width bits)) init(0)
-  counter := counter + io.increment
-
-  io.oscillator := counter.msb
+  val toggle = Reg(False)
+  when(counter === 0){
+    counter := io.increment
+    when(io.increment =/= 0) {
+      toggle := !toggle
+    }
+  }.otherwise {
+    counter := counter - 1
+  }
+  io.oscillator := toggle
 }
