@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.10.2a    git head : a348a60b7e8b6a455c72e1536ec3d74a2ea16935
 // Component : tt_um_monotone_player
-// Git hash  : 24bff9a8515f57fa240fe059018762c508e687d7
+// Git hash  : 0b953efb6dfbad8bd83bbb08670437d18416230b
 
 `timescale 1ns/1ps
 
@@ -533,6 +533,8 @@ module OscillatorControl (
   localparam controlFsm_enumDef_decodeCmd_waitFrameEnd = 3'd3;
   localparam controlFsm_enumDef_setOscillatorRead = 3'd4;
   localparam controlFsm_enumDef_setOscillatorData = 3'd5;
+  localparam controlFsm_enumDef_readPC = 3'd6;
+  localparam controlFsm_enumDef_setPC = 3'd7;
 
   wire       [5:0]    _zz_oscillatorPrescaler_valueNext;
   wire       [0:0]    _zz_oscillatorPrescaler_valueNext_1;
@@ -556,14 +558,15 @@ module OscillatorControl (
   reg        [11:0]   oscillatorControl_1;
   reg        [11:0]   oscillatorControl_2;
   reg        [1:0]    oscillatorSel;
-  reg        [3:0]    oscillatorMsb;
+  reg        [3:0]    tempData;
   wire                controlFsm_wantExit;
   reg                 controlFsm_wantStart;
   wire                controlFsm_wantKill;
   reg        [2:0]    controlFsm_stateReg;
   reg        [2:0]    controlFsm_stateNext;
   wire       [3:0]    switch_OscillatorControl_l50;
-  wire       [3:0]    _zz_oscillatorMsb;
+  wire       [3:0]    _zz_tempData;
+  wire                when_OscillatorControl_l91;
   wire       [3:0]    _zz_1;
   wire       [11:0]   _zz_oscillatorControl_0;
   `ifndef SYNTHESIS
@@ -585,6 +588,8 @@ module OscillatorControl (
       controlFsm_enumDef_decodeCmd_waitFrameEnd : controlFsm_stateReg_string = "decodeCmd_waitFrameEnd";
       controlFsm_enumDef_setOscillatorRead : controlFsm_stateReg_string = "setOscillatorRead     ";
       controlFsm_enumDef_setOscillatorData : controlFsm_stateReg_string = "setOscillatorData     ";
+      controlFsm_enumDef_readPC : controlFsm_stateReg_string = "readPC                ";
+      controlFsm_enumDef_setPC : controlFsm_stateReg_string = "setPC                 ";
       default : controlFsm_stateReg_string = "??????????????????????";
     endcase
   end
@@ -596,6 +601,8 @@ module OscillatorControl (
       controlFsm_enumDef_decodeCmd_waitFrameEnd : controlFsm_stateNext_string = "decodeCmd_waitFrameEnd";
       controlFsm_enumDef_setOscillatorRead : controlFsm_stateNext_string = "setOscillatorRead     ";
       controlFsm_enumDef_setOscillatorData : controlFsm_stateNext_string = "setOscillatorData     ";
+      controlFsm_enumDef_readPC : controlFsm_stateNext_string = "readPC                ";
+      controlFsm_enumDef_setPC : controlFsm_stateNext_string = "setPC                 ";
       default : controlFsm_stateNext_string = "??????????????????????";
     endcase
   end
@@ -653,6 +660,11 @@ module OscillatorControl (
       end
       controlFsm_enumDef_setOscillatorData : begin
       end
+      controlFsm_enumDef_readPC : begin
+        io_readReq_valid = 1'b1;
+      end
+      controlFsm_enumDef_setPC : begin
+      end
       default : begin
       end
     endcase
@@ -675,6 +687,10 @@ module OscillatorControl (
       end
       controlFsm_enumDef_setOscillatorData : begin
       end
+      controlFsm_enumDef_readPC : begin
+      end
+      controlFsm_enumDef_setPC : begin
+      end
       default : begin
         controlFsm_wantStart = 1'b1;
       end
@@ -694,7 +710,13 @@ module OscillatorControl (
         if(io_readResp_valid) begin
           case(switch_OscillatorControl_l50)
             4'b0000 : begin
+              controlFsm_stateNext = controlFsm_enumDef_fetchCmd;
+            end
+            4'b0001 : begin
               controlFsm_stateNext = controlFsm_enumDef_decodeCmd_waitFrameEnd;
+            end
+            4'b0010 : begin
+              controlFsm_stateNext = controlFsm_enumDef_readPC;
             end
             4'b1100 : begin
               controlFsm_stateNext = controlFsm_enumDef_setOscillatorRead;
@@ -712,7 +734,9 @@ module OscillatorControl (
       end
       controlFsm_enumDef_decodeCmd_waitFrameEnd : begin
         if(counter_willOverflow) begin
-          controlFsm_stateNext = controlFsm_enumDef_fetchCmd;
+          if(!when_OscillatorControl_l91) begin
+            controlFsm_stateNext = controlFsm_enumDef_fetchCmd;
+          end
         end
       end
       controlFsm_enumDef_setOscillatorRead : begin
@@ -721,6 +745,16 @@ module OscillatorControl (
         end
       end
       controlFsm_enumDef_setOscillatorData : begin
+        if(io_readResp_valid) begin
+          controlFsm_stateNext = controlFsm_enumDef_fetchCmd;
+        end
+      end
+      controlFsm_enumDef_readPC : begin
+        if(io_readReq_ready) begin
+          controlFsm_stateNext = controlFsm_enumDef_setPC;
+        end
+      end
+      controlFsm_enumDef_setPC : begin
         if(io_readResp_valid) begin
           controlFsm_stateNext = controlFsm_enumDef_fetchCmd;
         end
@@ -737,9 +771,10 @@ module OscillatorControl (
   end
 
   assign switch_OscillatorControl_l50 = io_readResp_payload[7 : 4];
-  assign _zz_oscillatorMsb = io_readResp_payload[3 : 0];
+  assign _zz_tempData = io_readResp_payload[3 : 0];
+  assign when_OscillatorControl_l91 = (tempData != 4'b0000);
   assign _zz_1 = ({3'd0,1'b1} <<< oscillatorSel);
-  assign _zz_oscillatorControl_0 = {oscillatorMsb,io_readResp_payload};
+  assign _zz_oscillatorControl_0 = {tempData,io_readResp_payload};
   always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
       pc <= 16'h0;
@@ -767,6 +802,16 @@ module OscillatorControl (
         end
         controlFsm_enumDef_setOscillatorData : begin
         end
+        controlFsm_enumDef_readPC : begin
+          if(io_readReq_ready) begin
+            pc <= (pc + 16'h0001);
+          end
+        end
+        controlFsm_enumDef_setPC : begin
+          if(io_readResp_valid) begin
+            pc <= {{tempData,io_readResp_payload},4'b0000};
+          end
+        end
         default : begin
         end
       endcase
@@ -780,17 +825,23 @@ module OscillatorControl (
       controlFsm_enumDef_decodeCmd : begin
         if(io_readResp_valid) begin
           case(switch_OscillatorControl_l50)
+            4'b0001 : begin
+              tempData <= _zz_tempData;
+            end
+            4'b0010 : begin
+              tempData <= _zz_tempData;
+            end
             4'b1100 : begin
               oscillatorSel <= 2'b00;
-              oscillatorMsb <= _zz_oscillatorMsb;
+              tempData <= _zz_tempData;
             end
             4'b1101 : begin
               oscillatorSel <= 2'b01;
-              oscillatorMsb <= _zz_oscillatorMsb;
+              tempData <= _zz_tempData;
             end
             4'b1110 : begin
               oscillatorSel <= 2'b10;
-              oscillatorMsb <= _zz_oscillatorMsb;
+              tempData <= _zz_tempData;
             end
             default : begin
             end
@@ -798,6 +849,11 @@ module OscillatorControl (
         end
       end
       controlFsm_enumDef_decodeCmd_waitFrameEnd : begin
+        if(counter_willOverflow) begin
+          if(when_OscillatorControl_l91) begin
+            tempData <= (tempData - 4'b0001);
+          end
+        end
       end
       controlFsm_enumDef_setOscillatorRead : begin
       end
@@ -813,6 +869,10 @@ module OscillatorControl (
             oscillatorControl_2 <= _zz_oscillatorControl_0;
           end
         end
+      end
+      controlFsm_enumDef_readPC : begin
+      end
+      controlFsm_enumDef_setPC : begin
       end
       default : begin
       end

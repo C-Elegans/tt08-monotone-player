@@ -31,7 +31,7 @@ case class OscillatorControl(numOscillators: Int, frameLength: Int) extends Comp
 
 
   val oscillatorSel = Reg(UInt(2 bits))
-  val oscillatorMsb = Reg(Bits(4 bits))
+  val tempData = Reg(UInt(4 bits))
   val controlFsm = new StateMachine {
     val fetchCmd: State = new State {
       whenIsActive {
@@ -49,29 +49,37 @@ case class OscillatorControl(numOscillators: Int, frameLength: Int) extends Comp
           val data = io.readResp.payload(3 downto 0)
           switch(command) {
             is(0) {
+              goto(fetchCmd)
+            }
+            is(1) {
+              tempData := data.asUInt
               goto(waitFrameEnd)
+            }
+            is(2) {
+              tempData := data.asUInt
+              goto(readPC)
             }
             is(0xc) {
               oscillatorSel := 0
-              oscillatorMsb := data
+              tempData := data.asUInt
               goto(setOscillatorRead)
             }
             if(numOscillators >= 2)
             is(0xd) {
               oscillatorSel := 1
-              oscillatorMsb := data
+              tempData := data.asUInt
               goto(setOscillatorRead)
             }
             if(numOscillators >= 3)
             is(0xe) {
               oscillatorSel := 2
-              oscillatorMsb := data
+              tempData := data.asUInt
               goto(setOscillatorRead)
             }
             if(numOscillators >= 4)
             is(0xf) {
               oscillatorSel := 3
-              oscillatorMsb := data
+              tempData := data.asUInt
               goto(setOscillatorRead)
             }
           }
@@ -80,7 +88,11 @@ case class OscillatorControl(numOscillators: Int, frameLength: Int) extends Comp
       val waitFrameEnd : State = new State {
         whenIsActive {
           when(frameStart){
-            goto(fetchCmd)
+            when(tempData =/= 0){
+              tempData := tempData - 1
+            }.otherwise {
+              goto(fetchCmd)
+            }
           }
         }
       }
@@ -98,7 +110,24 @@ case class OscillatorControl(numOscillators: Int, frameLength: Int) extends Comp
     val setOscillatorData : State = new State {
       whenIsActive {
         when(io.readResp.valid){
-          oscillatorControl(oscillatorSel) := (oscillatorMsb ## io.readResp.payload).asUInt
+          oscillatorControl(oscillatorSel) := (tempData ## io.readResp.payload).asUInt
+          goto(fetchCmd)
+        }
+      }
+    }
+    val readPC: State = new State {
+      whenIsActive {
+        io.readReq.valid := True
+        when(io.readReq.ready){
+          pc := pc + 1
+          goto(setPC)
+        }
+      }
+    }
+    val setPC : State = new State {
+      whenIsActive {
+        when(io.readResp.valid){
+          pc := (tempData ## io.readResp.payload ## B(0, 4 bits)).asUInt 
           goto(fetchCmd)
         }
       }
