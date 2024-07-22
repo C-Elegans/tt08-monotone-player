@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.10.2a    git head : a348a60b7e8b6a455c72e1536ec3d74a2ea16935
 // Component : tt_um_monotone_player
-// Git hash  : 0b953efb6dfbad8bd83bbb08670437d18416230b
+// Git hash  : b81a440c23a0964158672c287a2dd0d44c8be786
 
 `timescale 1ns/1ps
 
@@ -492,7 +492,7 @@ module OscillatorGroup (
     endcase
   end
 
-  assign sigmaDelta_increment = _zz_sigmaDelta_increment;
+  assign sigmaDelta_increment = (_zz_sigmaDelta_increment + 2'b01);
   assign sigmaDelta_countResult = ({1'b0,sigmaDelta_counter} + {1'b0,sigmaDelta_increment});
   assign io_oscillator = _zz_io_oscillator;
   always @(posedge clk or negedge rst_n) begin
@@ -538,8 +538,6 @@ module OscillatorControl (
 
   wire       [5:0]    _zz_oscillatorPrescaler_valueNext;
   wire       [0:0]    _zz_oscillatorPrescaler_valueNext_1;
-  wire       [15:0]   _zz_counter_valueNext;
-  wire       [0:0]    _zz_counter_valueNext_1;
   reg        [15:0]   pc;
   wire                when_Utils_l578;
   reg                 oscillatorPrescaler_willIncrement;
@@ -548,12 +546,10 @@ module OscillatorControl (
   reg        [5:0]    oscillatorPrescaler_value;
   wire                oscillatorPrescaler_willOverflowIfInc;
   wire                oscillatorPrescaler_willOverflow;
-  reg                 counter_willIncrement;
-  wire                counter_willClear;
-  reg        [15:0]   counter_valueNext;
-  reg        [15:0]   counter_value;
-  wire                counter_willOverflowIfInc;
-  wire                counter_willOverflow;
+  reg        [15:0]   frameLength;
+  reg        [15:0]   count;
+  wire                when_OscillatorControl_l25;
+  wire                frameStart;
   reg        [11:0]   oscillatorControl_0;
   reg        [11:0]   oscillatorControl_1;
   reg        [11:0]   oscillatorControl_2;
@@ -564,9 +560,9 @@ module OscillatorControl (
   wire                controlFsm_wantKill;
   reg        [2:0]    controlFsm_stateReg;
   reg        [2:0]    controlFsm_stateNext;
-  wire       [3:0]    switch_OscillatorControl_l50;
-  wire       [3:0]    _zz_tempData;
-  wire                when_OscillatorControl_l91;
+  wire       [3:0]    switch_OscillatorControl_l61;
+  wire       [3:0]    _zz_frameLength;
+  wire                when_OscillatorControl_l100;
   wire       [3:0]    _zz_1;
   wire       [11:0]   _zz_oscillatorControl_0;
   `ifndef SYNTHESIS
@@ -577,8 +573,6 @@ module OscillatorControl (
 
   assign _zz_oscillatorPrescaler_valueNext_1 = oscillatorPrescaler_willIncrement;
   assign _zz_oscillatorPrescaler_valueNext = {5'd0, _zz_oscillatorPrescaler_valueNext_1};
-  assign _zz_counter_valueNext_1 = counter_willIncrement;
-  assign _zz_counter_valueNext = {15'd0, _zz_counter_valueNext_1};
   `ifndef SYNTHESIS
   always @(*) begin
     case(controlFsm_stateReg)
@@ -627,23 +621,8 @@ module OscillatorControl (
   end
 
   assign io_oscillator_en = oscillatorPrescaler_willOverflow;
-  always @(*) begin
-    counter_willIncrement = 1'b0;
-    if(oscillatorPrescaler_willOverflow) begin
-      counter_willIncrement = 1'b1;
-    end
-  end
-
-  assign counter_willClear = 1'b0;
-  assign counter_willOverflowIfInc = (counter_value == 16'hffff);
-  assign counter_willOverflow = (counter_willOverflowIfInc && counter_willIncrement);
-  always @(*) begin
-    counter_valueNext = (counter_value + _zz_counter_valueNext);
-    if(counter_willClear) begin
-      counter_valueNext = 16'h0;
-    end
-  end
-
+  assign when_OscillatorControl_l25 = (count == 16'h0);
+  assign frameStart = ((count == 16'h0) && oscillatorPrescaler_willOverflow);
   assign io_readReq_payload = pc;
   always @(*) begin
     io_readReq_valid = 1'b0;
@@ -708,7 +687,7 @@ module OscillatorControl (
       end
       controlFsm_enumDef_decodeCmd : begin
         if(io_readResp_valid) begin
-          case(switch_OscillatorControl_l50)
+          case(switch_OscillatorControl_l61)
             4'b0000 : begin
               controlFsm_stateNext = controlFsm_enumDef_fetchCmd;
             end
@@ -717,6 +696,9 @@ module OscillatorControl (
             end
             4'b0010 : begin
               controlFsm_stateNext = controlFsm_enumDef_readPC;
+            end
+            4'b0011 : begin
+              controlFsm_stateNext = controlFsm_enumDef_fetchCmd;
             end
             4'b1100 : begin
               controlFsm_stateNext = controlFsm_enumDef_setOscillatorRead;
@@ -733,8 +715,8 @@ module OscillatorControl (
         end
       end
       controlFsm_enumDef_decodeCmd_waitFrameEnd : begin
-        if(counter_willOverflow) begin
-          if(!when_OscillatorControl_l91) begin
+        if(frameStart) begin
+          if(!when_OscillatorControl_l100) begin
             controlFsm_stateNext = controlFsm_enumDef_fetchCmd;
           end
         end
@@ -770,20 +752,27 @@ module OscillatorControl (
     end
   end
 
-  assign switch_OscillatorControl_l50 = io_readResp_payload[7 : 4];
-  assign _zz_tempData = io_readResp_payload[3 : 0];
-  assign when_OscillatorControl_l91 = (tempData != 4'b0000);
+  assign switch_OscillatorControl_l61 = io_readResp_payload[7 : 4];
+  assign _zz_frameLength = io_readResp_payload[3 : 0];
+  assign when_OscillatorControl_l100 = (tempData != 4'b0000);
   assign _zz_1 = ({3'd0,1'b1} <<< oscillatorSel);
   assign _zz_oscillatorControl_0 = {tempData,io_readResp_payload};
   always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
       pc <= 16'h0;
       oscillatorPrescaler_value <= 6'h0;
-      counter_value <= 16'h0;
+      frameLength <= 16'hffff;
+      count <= 16'h0;
       controlFsm_stateReg <= controlFsm_enumDef_BOOT;
     end else begin
       oscillatorPrescaler_value <= oscillatorPrescaler_valueNext;
-      counter_value <= counter_valueNext;
+      if(oscillatorPrescaler_willOverflow) begin
+        if(when_OscillatorControl_l25) begin
+          count <= frameLength;
+        end else begin
+          count <= (count - 16'h0001);
+        end
+      end
       controlFsm_stateReg <= controlFsm_stateNext;
       case(controlFsm_stateReg)
         controlFsm_enumDef_fetchCmd : begin
@@ -792,6 +781,15 @@ module OscillatorControl (
           end
         end
         controlFsm_enumDef_decodeCmd : begin
+          if(io_readResp_valid) begin
+            case(switch_OscillatorControl_l61)
+              4'b0011 : begin
+                frameLength[15 : 12] <= _zz_frameLength;
+              end
+              default : begin
+              end
+            endcase
+          end
         end
         controlFsm_enumDef_decodeCmd_waitFrameEnd : begin
         end
@@ -824,24 +822,16 @@ module OscillatorControl (
       end
       controlFsm_enumDef_decodeCmd : begin
         if(io_readResp_valid) begin
-          case(switch_OscillatorControl_l50)
-            4'b0001 : begin
-              tempData <= _zz_tempData;
-            end
-            4'b0010 : begin
-              tempData <= _zz_tempData;
-            end
+          tempData <= _zz_frameLength;
+          case(switch_OscillatorControl_l61)
             4'b1100 : begin
               oscillatorSel <= 2'b00;
-              tempData <= _zz_tempData;
             end
             4'b1101 : begin
               oscillatorSel <= 2'b01;
-              tempData <= _zz_tempData;
             end
             4'b1110 : begin
               oscillatorSel <= 2'b10;
-              tempData <= _zz_tempData;
             end
             default : begin
             end
@@ -849,8 +839,8 @@ module OscillatorControl (
         end
       end
       controlFsm_enumDef_decodeCmd_waitFrameEnd : begin
-        if(counter_willOverflow) begin
-          if(when_OscillatorControl_l91) begin
+        if(frameStart) begin
+          if(when_OscillatorControl_l100) begin
             tempData <= (tempData - 4'b0001);
           end
         end

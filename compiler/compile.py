@@ -54,8 +54,8 @@ def calc_divider(frequency):
 def note(note_str, oscillator=0):
     freq = note_frequency(note_str)
     period = 1/freq * 1e6 if freq else 0
-    print(f'{note_str} = {freq} Hz, {period=} us')
     div = calc_divider(freq)
+    print(f'{note_str} = {freq} Hz, {period=} us {div=}')
     if div:
         div -= 1
     cmd1 = (0x3 << 6) | (oscillator << 4) | ((div >> 8) & 0xF)
@@ -72,6 +72,12 @@ def jump(addr):
     cmd2 = ((addr >> 4) & 0xFF)
     f.write(struct.pack('BB', cmd1, cmd2))
 
+def framelength(count):
+    cmd1 = 0x3 << 4 | (count & 0xf)
+    f.write(struct.pack('B', cmd1))
+
+
+framelength(0xf)
 note('F4')
 note('', 1)
 wait()

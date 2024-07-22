@@ -18,7 +18,7 @@ case class OscillatorGroup(width: Int, numOscillators: Int) extends Component {
     oscillator.io.oscillator
   }
   val sigmaDelta = new Area {
-    val increment = CountOne(outputs)
+    val increment = CountOne(outputs) + 1
 
     val counter = Reg(cloneOf(increment)) init(0)
     val countResult = counter +^ increment

@@ -5,7 +5,7 @@ import spinal.core.sim._
 import spinal.lib._
 import spinal.lib.fsm._
 
-case class OscillatorControl(numOscillators: Int, frameLength: Int) extends Component {
+case class OscillatorControl(numOscillators: Int) extends Component {
   val io = new Bundle {
     val readReq = master(Stream(UInt(16 bits)))
     val readResp = slave(Flow(Bits(8 bits)))
@@ -19,8 +19,18 @@ case class OscillatorControl(numOscillators: Int, frameLength: Int) extends Comp
   val oscillatorEn = oscillatorPrescaler.willOverflow
   io.oscillator_en := oscillatorEn
 
-  val counter = Counter(frameLength, oscillatorEn)
-  val frameStart = counter.willOverflow
+  val frameLength = Reg(UInt(16 bits)) init(0xffff)
+  val count = Reg(cloneOf(frameLength)) init(0)
+  when(oscillatorEn){
+    when(count === 0){
+      count := frameLength
+    }.otherwise {
+      count := count - 1
+    }
+  }
+
+
+  val frameStart = (count === 0) && oscillatorEn
 
   io.readReq.payload := pc
   io.readReq.valid := False
@@ -47,39 +57,38 @@ case class OscillatorControl(numOscillators: Int, frameLength: Int) extends Comp
         when(io.readResp.valid){
           val command = io.readResp.payload(7 downto 4)
           val data = io.readResp.payload(3 downto 0)
+          tempData := data.asUInt
           switch(command) {
             is(0) {
               goto(fetchCmd)
             }
             is(1) {
-              tempData := data.asUInt
               goto(waitFrameEnd)
             }
             is(2) {
-              tempData := data.asUInt
               goto(readPC)
+            }
+            is(3) {
+              frameLength(15 downto 12) := data.asUInt
+              goto(fetchCmd)
             }
             is(0xc) {
               oscillatorSel := 0
-              tempData := data.asUInt
               goto(setOscillatorRead)
             }
             if(numOscillators >= 2)
             is(0xd) {
               oscillatorSel := 1
-              tempData := data.asUInt
               goto(setOscillatorRead)
             }
             if(numOscillators >= 3)
             is(0xe) {
               oscillatorSel := 2
-              tempData := data.asUInt
               goto(setOscillatorRead)
             }
             if(numOscillators >= 4)
             is(0xf) {
               oscillatorSel := 3
-              tempData := data.asUInt
               goto(setOscillatorRead)
             }
           }

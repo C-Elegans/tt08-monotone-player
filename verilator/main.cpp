@@ -34,6 +34,9 @@ int main(int argc, char** argv){
     auto audio = AudioDump<VTop>("audio.raw", clock_frequency, 44.1e3);
 
     top.resetn = 0;
+    top.clk = 0;
+    top.eval();
+    top.clk = 1;
     top.eval();
     top.resetn = 1;
     top.eval();
