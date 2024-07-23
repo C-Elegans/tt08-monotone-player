@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.10.2a    git head : a348a60b7e8b6a455c72e1536ec3d74a2ea16935
 // Component : tt_um_monotone_player
-// Git hash  : fdbde7367ac3fac6c06591f7caab49c1e00f1bf2
+// Git hash  : c5af47a1cebb07f474287b14f407aef235469ca4
 
 `timescale 1ns/1ps
 
@@ -895,9 +895,9 @@ module SpiMaster (
   localparam fsm_enumDef_1_dataSend = 3'd3;
   localparam fsm_enumDef_1_txEnd = 3'd4;
 
+  reg        [0:0]    _zz_spi_mosi;
   wire                sclk_active;
   wire       [0:0]    ss_active;
-  reg        [7:0]    dataOut;
   reg        [7:0]    dataIn;
   reg        [0:0]    spi_ss;
   reg                 spi_sclk;
@@ -913,7 +913,7 @@ module SpiMaster (
   wire                fsm_dataSend_fsm_wantKill;
   reg        [1:0]    fsm_dataSend_fsm_stateReg;
   reg        [1:0]    fsm_dataSend_fsm_stateNext;
-  wire                when_SpiMaster_l93;
+  wire                when_SpiMaster_l90;
   reg        [2:0]    fsm_stateReg;
   reg        [2:0]    fsm_stateNext;
   wire                when_StateMachine_l253;
@@ -924,6 +924,19 @@ module SpiMaster (
   reg [63:0] fsm_stateNext_string;
   `endif
 
+
+  always @(*) begin
+    case(bitCount)
+      3'b000 : _zz_spi_mosi = io_cmd_payload[0 : 0];
+      3'b001 : _zz_spi_mosi = io_cmd_payload[1 : 1];
+      3'b010 : _zz_spi_mosi = io_cmd_payload[2 : 2];
+      3'b011 : _zz_spi_mosi = io_cmd_payload[3 : 3];
+      3'b100 : _zz_spi_mosi = io_cmd_payload[4 : 4];
+      3'b101 : _zz_spi_mosi = io_cmd_payload[5 : 5];
+      3'b110 : _zz_spi_mosi = io_cmd_payload[6 : 6];
+      default : _zz_spi_mosi = io_cmd_payload[7 : 7];
+    endcase
+  end
 
   `ifndef SYNTHESIS
   always @(*) begin
@@ -975,16 +988,15 @@ module SpiMaster (
     io_cmd_ready = 1'b0;
     case(fsm_stateReg)
       fsm_enumDef_1_idle : begin
-        io_cmd_ready = 1'b1;
       end
       fsm_enumDef_1_txBegin : begin
       end
       fsm_enumDef_1_dataSend : begin
-      end
-      fsm_enumDef_1_txEnd : begin
-        if(io_cmd_valid) begin
+        if(fsm_dataSend_fsm_wantExit) begin
           io_cmd_ready = 1'b1;
         end
+      end
+      fsm_enumDef_1_txEnd : begin
       end
       default : begin
       end
@@ -1063,7 +1075,7 @@ module SpiMaster (
       end
       fsm_dataSend_fsm_enumDef_clock : begin
         if(en) begin
-          if(when_SpiMaster_l93) begin
+          if(when_SpiMaster_l90) begin
             fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_exitState;
           end else begin
             fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_drive;
@@ -1086,7 +1098,7 @@ module SpiMaster (
     end
   end
 
-  assign when_SpiMaster_l93 = (bitCount == 3'b000);
+  assign when_SpiMaster_l90 = (bitCount == 3'b000);
   always @(*) begin
     fsm_stateNext = fsm_stateReg;
     case(fsm_stateReg)
@@ -1135,7 +1147,7 @@ module SpiMaster (
         fsm_dataSend_fsm_enumDef_drive : begin
           if(en) begin
             spi_sclk <= (! sclk_active);
-            spi_mosi <= dataOut[7];
+            spi_mosi <= _zz_spi_mosi[0];
           end
         end
         fsm_dataSend_fsm_enumDef_clock : begin
@@ -1177,32 +1189,13 @@ module SpiMaster (
       end
       fsm_dataSend_fsm_enumDef_clock : begin
         if(en) begin
-          dataOut <= (dataOut <<< 1);
           dataIn <= {dataIn[6 : 0],spi_miso};
-          if(!when_SpiMaster_l93) begin
+          if(!when_SpiMaster_l90) begin
             bitCount <= (bitCount - 3'b001);
           end
         end
       end
       fsm_dataSend_fsm_enumDef_exitState : begin
-      end
-      default : begin
-      end
-    endcase
-    case(fsm_stateReg)
-      fsm_enumDef_1_idle : begin
-        if(io_cmd_valid) begin
-          dataOut <= io_cmd_payload;
-        end
-      end
-      fsm_enumDef_1_txBegin : begin
-      end
-      fsm_enumDef_1_dataSend : begin
-      end
-      fsm_enumDef_1_txEnd : begin
-        if(io_cmd_valid) begin
-          dataOut <= io_cmd_payload;
-        end
       end
       default : begin
       end

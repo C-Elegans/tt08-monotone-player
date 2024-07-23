@@ -15,7 +15,8 @@ case class SpiMaster() extends Component {
   val sclk_active = True
   val ss_active = B(0, 1 bits)
 
-  val dataOut = Reg(Bits(8 bits))
+  val dataOut = io.cmd.payload
+  
   val dataIn = Reg(Bits(8 bits))
   val spi = Reg(cloneOf(io.spi))
   spi.ss init(~ss_active)
@@ -35,9 +36,7 @@ case class SpiMaster() extends Component {
   val fsm = new StateMachine {
     val idle : State = new State {
       whenIsActive {
-        io.cmd.ready := True
         when(io.cmd.valid){
-          dataOut := io.cmd.payload
           goto(txBegin)
         }
       }
@@ -53,6 +52,7 @@ case class SpiMaster() extends Component {
         bitCount := 7
       }
       whenCompleted {
+        io.cmd.ready := True
         goto(txEnd)
       }
     }
@@ -61,8 +61,6 @@ case class SpiMaster() extends Component {
         io.resp.valid := True
         spi.sclk := !sclk_active
         when(io.cmd.valid){
-          io.cmd.ready := True
-          dataOut := io.cmd.payload
           goto(dataSend)
         }.otherwise {
           spi.ss := ~ss_active
@@ -79,7 +77,7 @@ case class SpiMaster() extends Component {
       whenIsActive {
         when(en) {
           spi.sclk := !sclk_active
-          spi.mosi := dataOut.msb
+          spi.mosi := dataOut.subdivideIn(1 bits)(bitCount)(0)
           goto(clock)
         }
       }
@@ -88,7 +86,6 @@ case class SpiMaster() extends Component {
       whenIsActive {
         when(en){
           spi.sclk := sclk_active
-          dataOut := dataOut |<< 1
           dataIn := dataIn(6 downto 0) ## spi.miso
           when(bitCount === 0){
             goto(exitState)
