@@ -45,7 +45,11 @@ case class OscillatorControl(numOscillators: Int) extends Component {
   val controlFsm = new StateMachine {
     val fetchCmd: State = new State {
       whenIsActive {
-        io.readReq.valid := True
+        // This is not technically valid axi-s as valid technically
+        // needs to stay high until ready is also high. However as
+        // long as valid is pulsed high and the command payload does
+        // not change, SpiRom will work correctly
+        io.readReq.valid := oscillatorEn
         when(io.readReq.ready){
           pc := pc + 1
           goto(decodeCmd)
@@ -109,7 +113,7 @@ case class OscillatorControl(numOscillators: Int) extends Component {
 
     val setOscillatorRead: State = new State {
       whenIsActive {
-        io.readReq.valid := True
+        io.readReq.valid := oscillatorEn
         when(io.readReq.ready){
           pc := pc + 1
           goto(setOscillatorData)
@@ -126,7 +130,7 @@ case class OscillatorControl(numOscillators: Int) extends Component {
     }
     val readPC: State = new State {
       whenIsActive {
-        io.readReq.valid := True
+        io.readReq.valid := oscillatorEn
         when(io.readReq.ready){
           pc := pc + 1
           goto(setPC)

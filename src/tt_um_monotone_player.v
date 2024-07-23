@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.10.2a    git head : a348a60b7e8b6a455c72e1536ec3d74a2ea16935
 // Component : tt_um_monotone_player
-// Git hash  : c5af47a1cebb07f474287b14f407aef235469ca4
+// Git hash  : 07498d687bee5dd5ac3cd1200bdf394119315b96
 
 `timescale 1ns/1ps
 
@@ -145,11 +145,8 @@ module SpiRom (
   wire                fsm_wantExit;
   reg                 fsm_wantStart;
   wire                fsm_wantKill;
-  reg        [5:0]    _zz_when_State_l238;
   reg        [2:0]    fsm_stateReg;
   reg        [2:0]    fsm_stateNext;
-  wire                when_State_l238;
-  wire                when_StateMachine_l253;
   `ifndef SYNTHESIS
   reg [95:0] fsm_stateReg_string;
   reg [95:0] fsm_stateNext_string;
@@ -383,9 +380,7 @@ module SpiRom (
         end
       end
       fsm_enumDef_waitSS : begin
-        if(when_State_l238) begin
-          fsm_stateNext = fsm_enumDef_idle;
-        end
+        fsm_stateNext = fsm_enumDef_idle;
       end
       default : begin
       end
@@ -398,38 +393,11 @@ module SpiRom (
     end
   end
 
-  assign when_State_l238 = (_zz_when_State_l238 <= 6'h01);
-  assign when_StateMachine_l253 = ((! (fsm_stateReg == fsm_enumDef_waitSS)) && (fsm_stateNext == fsm_enumDef_waitSS));
   always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
       fsm_stateReg <= fsm_enumDef_BOOT;
     end else begin
       fsm_stateReg <= fsm_stateNext;
-    end
-  end
-
-  always @(posedge clk) begin
-    case(fsm_stateReg)
-      fsm_enumDef_idle : begin
-      end
-      fsm_enumDef_readCmd : begin
-      end
-      fsm_enumDef_readAddr1 : begin
-      end
-      fsm_enumDef_readAddr2 : begin
-      end
-      fsm_enumDef_readData : begin
-      end
-      fsm_enumDef_readDataWait : begin
-      end
-      fsm_enumDef_waitSS : begin
-        _zz_when_State_l238 <= (_zz_when_State_l238 - 6'h01);
-      end
-      default : begin
-      end
-    endcase
-    if(when_StateMachine_l253) begin
-      _zz_when_State_l238 <= 6'h3f;
     end
   end
 
@@ -628,19 +596,19 @@ module OscillatorControl (
     io_readReq_valid = 1'b0;
     case(controlFsm_stateReg)
       controlFsm_enumDef_fetchCmd : begin
-        io_readReq_valid = 1'b1;
+        io_readReq_valid = oscillatorPrescaler_willOverflow;
       end
       controlFsm_enumDef_decodeCmd : begin
       end
       controlFsm_enumDef_decodeCmd_waitFrameEnd : begin
       end
       controlFsm_enumDef_setOscillatorRead : begin
-        io_readReq_valid = 1'b1;
+        io_readReq_valid = oscillatorPrescaler_willOverflow;
       end
       controlFsm_enumDef_setOscillatorData : begin
       end
       controlFsm_enumDef_readPC : begin
-        io_readReq_valid = 1'b1;
+        io_readReq_valid = oscillatorPrescaler_willOverflow;
       end
       controlFsm_enumDef_setPC : begin
       end

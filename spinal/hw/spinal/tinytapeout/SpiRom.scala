@@ -74,8 +74,8 @@ case class SpiRom() extends Component {
         }
       }
     }
-    val waitSS : State = new StateDelay(63) {
-      whenCompleted {
+    val waitSS : State = new State {
+      whenIsActive {
         goto(idle)
       }
     }
