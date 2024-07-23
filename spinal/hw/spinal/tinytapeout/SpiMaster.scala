@@ -27,6 +27,8 @@ case class SpiMaster() extends Component {
   io.resp.valid := False
   io.resp.payload := dataIn
 
+  val bitCount = Reg(UInt(3 bits))
+
   val en = Reg(False)
   en := !en
 
@@ -47,6 +49,9 @@ case class SpiMaster() extends Component {
       }
     }
     val dataSend : State = new StateFsm(sendFsm()) {
+      onEntry {
+        bitCount := 7
+      }
       whenCompleted {
         goto(txEnd)
       }
@@ -69,26 +74,32 @@ case class SpiMaster() extends Component {
   }
 
   def sendFsm() = new StateMachine {
-    def drive(next: State) = new State {
+
+    val drive : State = new State {
       whenIsActive {
-        when(en){
+        when(en) {
           spi.sclk := !sclk_active
           spi.mosi := dataOut.msb
-          goto(next)
+          goto(clock)
         }
       }
     }
-    def clock(next: State) = new State {
+    val clock : State = new State {
       whenIsActive {
         when(en){
           spi.sclk := sclk_active
           dataOut := dataOut |<< 1
           dataIn := dataIn(6 downto 0) ## spi.miso
-          goto(next)
+          when(bitCount === 0){
+            goto(exitState)
+          }.otherwise {
+            bitCount := bitCount - 1
+            goto(drive)
+          }
         }
       }
     }
-    val exitState = new State {
+    val exitState : State = new State {
       whenIsActive {
         when(en){
           exit()
@@ -96,23 +107,7 @@ case class SpiMaster() extends Component {
       }
     }
 
-    val clockB7 : State = clock(exitState)
-    val driveB7 : State = drive(clockB7)
-    val clockB6 : State = clock(driveB7)
-    val driveB6 : State = drive(clockB6)
-    val clockB5 : State = clock(driveB6)
-    val driveB5 : State = drive(clockB5)
-    val clockB4 : State = clock(driveB5)
-    val driveB4 : State = drive(clockB4)
-    val clockB3 : State = clock(driveB4)
-    val driveB3 : State = drive(clockB3)
-    val clockB2 : State = clock(driveB3)
-    val driveB2 : State = drive(clockB2)
-    val clockB1 : State = clock(driveB2)
-    val driveB1 : State = drive(clockB1)
-    val clockB0 : State = clock(driveB1)
-    val driveB0 : State = drive(clockB0)
-    setEntry(driveB0)
+    setEntry(drive)
 
   }
 }

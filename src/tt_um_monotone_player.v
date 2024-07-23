@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.10.2a    git head : a348a60b7e8b6a455c72e1536ec3d74a2ea16935
 // Component : tt_um_monotone_player
-// Git hash  : b81a440c23a0964158672c287a2dd0d44c8be786
+// Git hash  : fdbde7367ac3fac6c06591f7caab49c1e00f1bf2
 
 `timescale 1ns/1ps
 
@@ -885,24 +885,10 @@ module SpiMaster (
   input  wire          clk,
   input  wire          rst_n
 );
-  localparam fsm_dataSend_fsm_enumDef_BOOT = 5'd0;
-  localparam fsm_dataSend_fsm_enumDef_exitState = 5'd1;
-  localparam fsm_dataSend_fsm_enumDef_clockB7 = 5'd2;
-  localparam fsm_dataSend_fsm_enumDef_driveB7 = 5'd3;
-  localparam fsm_dataSend_fsm_enumDef_clockB6 = 5'd4;
-  localparam fsm_dataSend_fsm_enumDef_driveB6 = 5'd5;
-  localparam fsm_dataSend_fsm_enumDef_clockB5 = 5'd6;
-  localparam fsm_dataSend_fsm_enumDef_driveB5 = 5'd7;
-  localparam fsm_dataSend_fsm_enumDef_clockB4 = 5'd8;
-  localparam fsm_dataSend_fsm_enumDef_driveB4 = 5'd9;
-  localparam fsm_dataSend_fsm_enumDef_clockB3 = 5'd10;
-  localparam fsm_dataSend_fsm_enumDef_driveB3 = 5'd11;
-  localparam fsm_dataSend_fsm_enumDef_clockB2 = 5'd12;
-  localparam fsm_dataSend_fsm_enumDef_driveB2 = 5'd13;
-  localparam fsm_dataSend_fsm_enumDef_clockB1 = 5'd14;
-  localparam fsm_dataSend_fsm_enumDef_driveB1 = 5'd15;
-  localparam fsm_dataSend_fsm_enumDef_clockB0 = 5'd16;
-  localparam fsm_dataSend_fsm_enumDef_driveB0 = 5'd17;
+  localparam fsm_dataSend_fsm_enumDef_BOOT = 2'd0;
+  localparam fsm_dataSend_fsm_enumDef_drive = 2'd1;
+  localparam fsm_dataSend_fsm_enumDef_clock = 2'd2;
+  localparam fsm_dataSend_fsm_enumDef_exitState = 2'd3;
   localparam fsm_enumDef_1_BOOT = 3'd0;
   localparam fsm_enumDef_1_idle = 3'd1;
   localparam fsm_enumDef_1_txBegin = 3'd2;
@@ -917,6 +903,7 @@ module SpiMaster (
   reg                 spi_sclk;
   reg                 spi_mosi;
   reg                 spi_miso;
+  reg        [2:0]    bitCount;
   reg                 en;
   wire                fsm_wantExit;
   reg                 fsm_wantStart;
@@ -924,8 +911,9 @@ module SpiMaster (
   reg                 fsm_dataSend_fsm_wantExit;
   reg                 fsm_dataSend_fsm_wantStart;
   wire                fsm_dataSend_fsm_wantKill;
-  reg        [4:0]    fsm_dataSend_fsm_stateReg;
-  reg        [4:0]    fsm_dataSend_fsm_stateNext;
+  reg        [1:0]    fsm_dataSend_fsm_stateReg;
+  reg        [1:0]    fsm_dataSend_fsm_stateNext;
+  wire                when_SpiMaster_l93;
   reg        [2:0]    fsm_stateReg;
   reg        [2:0]    fsm_stateNext;
   wire                when_StateMachine_l253;
@@ -941,46 +929,18 @@ module SpiMaster (
   always @(*) begin
     case(fsm_dataSend_fsm_stateReg)
       fsm_dataSend_fsm_enumDef_BOOT : fsm_dataSend_fsm_stateReg_string = "BOOT     ";
+      fsm_dataSend_fsm_enumDef_drive : fsm_dataSend_fsm_stateReg_string = "drive    ";
+      fsm_dataSend_fsm_enumDef_clock : fsm_dataSend_fsm_stateReg_string = "clock    ";
       fsm_dataSend_fsm_enumDef_exitState : fsm_dataSend_fsm_stateReg_string = "exitState";
-      fsm_dataSend_fsm_enumDef_clockB7 : fsm_dataSend_fsm_stateReg_string = "clockB7  ";
-      fsm_dataSend_fsm_enumDef_driveB7 : fsm_dataSend_fsm_stateReg_string = "driveB7  ";
-      fsm_dataSend_fsm_enumDef_clockB6 : fsm_dataSend_fsm_stateReg_string = "clockB6  ";
-      fsm_dataSend_fsm_enumDef_driveB6 : fsm_dataSend_fsm_stateReg_string = "driveB6  ";
-      fsm_dataSend_fsm_enumDef_clockB5 : fsm_dataSend_fsm_stateReg_string = "clockB5  ";
-      fsm_dataSend_fsm_enumDef_driveB5 : fsm_dataSend_fsm_stateReg_string = "driveB5  ";
-      fsm_dataSend_fsm_enumDef_clockB4 : fsm_dataSend_fsm_stateReg_string = "clockB4  ";
-      fsm_dataSend_fsm_enumDef_driveB4 : fsm_dataSend_fsm_stateReg_string = "driveB4  ";
-      fsm_dataSend_fsm_enumDef_clockB3 : fsm_dataSend_fsm_stateReg_string = "clockB3  ";
-      fsm_dataSend_fsm_enumDef_driveB3 : fsm_dataSend_fsm_stateReg_string = "driveB3  ";
-      fsm_dataSend_fsm_enumDef_clockB2 : fsm_dataSend_fsm_stateReg_string = "clockB2  ";
-      fsm_dataSend_fsm_enumDef_driveB2 : fsm_dataSend_fsm_stateReg_string = "driveB2  ";
-      fsm_dataSend_fsm_enumDef_clockB1 : fsm_dataSend_fsm_stateReg_string = "clockB1  ";
-      fsm_dataSend_fsm_enumDef_driveB1 : fsm_dataSend_fsm_stateReg_string = "driveB1  ";
-      fsm_dataSend_fsm_enumDef_clockB0 : fsm_dataSend_fsm_stateReg_string = "clockB0  ";
-      fsm_dataSend_fsm_enumDef_driveB0 : fsm_dataSend_fsm_stateReg_string = "driveB0  ";
       default : fsm_dataSend_fsm_stateReg_string = "?????????";
     endcase
   end
   always @(*) begin
     case(fsm_dataSend_fsm_stateNext)
       fsm_dataSend_fsm_enumDef_BOOT : fsm_dataSend_fsm_stateNext_string = "BOOT     ";
+      fsm_dataSend_fsm_enumDef_drive : fsm_dataSend_fsm_stateNext_string = "drive    ";
+      fsm_dataSend_fsm_enumDef_clock : fsm_dataSend_fsm_stateNext_string = "clock    ";
       fsm_dataSend_fsm_enumDef_exitState : fsm_dataSend_fsm_stateNext_string = "exitState";
-      fsm_dataSend_fsm_enumDef_clockB7 : fsm_dataSend_fsm_stateNext_string = "clockB7  ";
-      fsm_dataSend_fsm_enumDef_driveB7 : fsm_dataSend_fsm_stateNext_string = "driveB7  ";
-      fsm_dataSend_fsm_enumDef_clockB6 : fsm_dataSend_fsm_stateNext_string = "clockB6  ";
-      fsm_dataSend_fsm_enumDef_driveB6 : fsm_dataSend_fsm_stateNext_string = "driveB6  ";
-      fsm_dataSend_fsm_enumDef_clockB5 : fsm_dataSend_fsm_stateNext_string = "clockB5  ";
-      fsm_dataSend_fsm_enumDef_driveB5 : fsm_dataSend_fsm_stateNext_string = "driveB5  ";
-      fsm_dataSend_fsm_enumDef_clockB4 : fsm_dataSend_fsm_stateNext_string = "clockB4  ";
-      fsm_dataSend_fsm_enumDef_driveB4 : fsm_dataSend_fsm_stateNext_string = "driveB4  ";
-      fsm_dataSend_fsm_enumDef_clockB3 : fsm_dataSend_fsm_stateNext_string = "clockB3  ";
-      fsm_dataSend_fsm_enumDef_driveB3 : fsm_dataSend_fsm_stateNext_string = "driveB3  ";
-      fsm_dataSend_fsm_enumDef_clockB2 : fsm_dataSend_fsm_stateNext_string = "clockB2  ";
-      fsm_dataSend_fsm_enumDef_driveB2 : fsm_dataSend_fsm_stateNext_string = "driveB2  ";
-      fsm_dataSend_fsm_enumDef_clockB1 : fsm_dataSend_fsm_stateNext_string = "clockB1  ";
-      fsm_dataSend_fsm_enumDef_driveB1 : fsm_dataSend_fsm_stateNext_string = "driveB1  ";
-      fsm_dataSend_fsm_enumDef_clockB0 : fsm_dataSend_fsm_stateNext_string = "clockB0  ";
-      fsm_dataSend_fsm_enumDef_driveB0 : fsm_dataSend_fsm_stateNext_string = "driveB0  ";
       default : fsm_dataSend_fsm_stateNext_string = "?????????";
     endcase
   end
@@ -1071,42 +1031,14 @@ module SpiMaster (
   always @(*) begin
     fsm_dataSend_fsm_wantExit = 1'b0;
     case(fsm_dataSend_fsm_stateReg)
+      fsm_dataSend_fsm_enumDef_drive : begin
+      end
+      fsm_dataSend_fsm_enumDef_clock : begin
+      end
       fsm_dataSend_fsm_enumDef_exitState : begin
         if(en) begin
           fsm_dataSend_fsm_wantExit = 1'b1;
         end
-      end
-      fsm_dataSend_fsm_enumDef_clockB7 : begin
-      end
-      fsm_dataSend_fsm_enumDef_driveB7 : begin
-      end
-      fsm_dataSend_fsm_enumDef_clockB6 : begin
-      end
-      fsm_dataSend_fsm_enumDef_driveB6 : begin
-      end
-      fsm_dataSend_fsm_enumDef_clockB5 : begin
-      end
-      fsm_dataSend_fsm_enumDef_driveB5 : begin
-      end
-      fsm_dataSend_fsm_enumDef_clockB4 : begin
-      end
-      fsm_dataSend_fsm_enumDef_driveB4 : begin
-      end
-      fsm_dataSend_fsm_enumDef_clockB3 : begin
-      end
-      fsm_dataSend_fsm_enumDef_driveB3 : begin
-      end
-      fsm_dataSend_fsm_enumDef_clockB2 : begin
-      end
-      fsm_dataSend_fsm_enumDef_driveB2 : begin
-      end
-      fsm_dataSend_fsm_enumDef_clockB1 : begin
-      end
-      fsm_dataSend_fsm_enumDef_driveB1 : begin
-      end
-      fsm_dataSend_fsm_enumDef_clockB0 : begin
-      end
-      fsm_dataSend_fsm_enumDef_driveB0 : begin
       end
       default : begin
       end
@@ -1124,102 +1056,37 @@ module SpiMaster (
   always @(*) begin
     fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_stateReg;
     case(fsm_dataSend_fsm_stateReg)
+      fsm_dataSend_fsm_enumDef_drive : begin
+        if(en) begin
+          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clock;
+        end
+      end
+      fsm_dataSend_fsm_enumDef_clock : begin
+        if(en) begin
+          if(when_SpiMaster_l93) begin
+            fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_exitState;
+          end else begin
+            fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_drive;
+          end
+        end
+      end
       fsm_dataSend_fsm_enumDef_exitState : begin
         if(en) begin
           fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_BOOT;
-        end
-      end
-      fsm_dataSend_fsm_enumDef_clockB7 : begin
-        if(en) begin
-          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_exitState;
-        end
-      end
-      fsm_dataSend_fsm_enumDef_driveB7 : begin
-        if(en) begin
-          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB7;
-        end
-      end
-      fsm_dataSend_fsm_enumDef_clockB6 : begin
-        if(en) begin
-          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB7;
-        end
-      end
-      fsm_dataSend_fsm_enumDef_driveB6 : begin
-        if(en) begin
-          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB6;
-        end
-      end
-      fsm_dataSend_fsm_enumDef_clockB5 : begin
-        if(en) begin
-          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB6;
-        end
-      end
-      fsm_dataSend_fsm_enumDef_driveB5 : begin
-        if(en) begin
-          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB5;
-        end
-      end
-      fsm_dataSend_fsm_enumDef_clockB4 : begin
-        if(en) begin
-          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB5;
-        end
-      end
-      fsm_dataSend_fsm_enumDef_driveB4 : begin
-        if(en) begin
-          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB4;
-        end
-      end
-      fsm_dataSend_fsm_enumDef_clockB3 : begin
-        if(en) begin
-          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB4;
-        end
-      end
-      fsm_dataSend_fsm_enumDef_driveB3 : begin
-        if(en) begin
-          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB3;
-        end
-      end
-      fsm_dataSend_fsm_enumDef_clockB2 : begin
-        if(en) begin
-          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB3;
-        end
-      end
-      fsm_dataSend_fsm_enumDef_driveB2 : begin
-        if(en) begin
-          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB2;
-        end
-      end
-      fsm_dataSend_fsm_enumDef_clockB1 : begin
-        if(en) begin
-          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB2;
-        end
-      end
-      fsm_dataSend_fsm_enumDef_driveB1 : begin
-        if(en) begin
-          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB1;
-        end
-      end
-      fsm_dataSend_fsm_enumDef_clockB0 : begin
-        if(en) begin
-          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB1;
-        end
-      end
-      fsm_dataSend_fsm_enumDef_driveB0 : begin
-        if(en) begin
-          fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_clockB0;
         end
       end
       default : begin
       end
     endcase
     if(fsm_dataSend_fsm_wantStart) begin
-      fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_driveB0;
+      fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_drive;
     end
     if(fsm_dataSend_fsm_wantKill) begin
       fsm_dataSend_fsm_stateNext = fsm_dataSend_fsm_enumDef_BOOT;
     end
   end
 
+  assign when_SpiMaster_l93 = (bitCount == 3'b000);
   always @(*) begin
     fsm_stateNext = fsm_stateReg;
     case(fsm_stateReg)
@@ -1265,95 +1132,18 @@ module SpiMaster (
     end else begin
       fsm_dataSend_fsm_stateReg <= fsm_dataSend_fsm_stateNext;
       case(fsm_dataSend_fsm_stateReg)
+        fsm_dataSend_fsm_enumDef_drive : begin
+          if(en) begin
+            spi_sclk <= (! sclk_active);
+            spi_mosi <= dataOut[7];
+          end
+        end
+        fsm_dataSend_fsm_enumDef_clock : begin
+          if(en) begin
+            spi_sclk <= sclk_active;
+          end
+        end
         fsm_dataSend_fsm_enumDef_exitState : begin
-        end
-        fsm_dataSend_fsm_enumDef_clockB7 : begin
-          if(en) begin
-            spi_sclk <= sclk_active;
-          end
-        end
-        fsm_dataSend_fsm_enumDef_driveB7 : begin
-          if(en) begin
-            spi_sclk <= (! sclk_active);
-            spi_mosi <= dataOut[7];
-          end
-        end
-        fsm_dataSend_fsm_enumDef_clockB6 : begin
-          if(en) begin
-            spi_sclk <= sclk_active;
-          end
-        end
-        fsm_dataSend_fsm_enumDef_driveB6 : begin
-          if(en) begin
-            spi_sclk <= (! sclk_active);
-            spi_mosi <= dataOut[7];
-          end
-        end
-        fsm_dataSend_fsm_enumDef_clockB5 : begin
-          if(en) begin
-            spi_sclk <= sclk_active;
-          end
-        end
-        fsm_dataSend_fsm_enumDef_driveB5 : begin
-          if(en) begin
-            spi_sclk <= (! sclk_active);
-            spi_mosi <= dataOut[7];
-          end
-        end
-        fsm_dataSend_fsm_enumDef_clockB4 : begin
-          if(en) begin
-            spi_sclk <= sclk_active;
-          end
-        end
-        fsm_dataSend_fsm_enumDef_driveB4 : begin
-          if(en) begin
-            spi_sclk <= (! sclk_active);
-            spi_mosi <= dataOut[7];
-          end
-        end
-        fsm_dataSend_fsm_enumDef_clockB3 : begin
-          if(en) begin
-            spi_sclk <= sclk_active;
-          end
-        end
-        fsm_dataSend_fsm_enumDef_driveB3 : begin
-          if(en) begin
-            spi_sclk <= (! sclk_active);
-            spi_mosi <= dataOut[7];
-          end
-        end
-        fsm_dataSend_fsm_enumDef_clockB2 : begin
-          if(en) begin
-            spi_sclk <= sclk_active;
-          end
-        end
-        fsm_dataSend_fsm_enumDef_driveB2 : begin
-          if(en) begin
-            spi_sclk <= (! sclk_active);
-            spi_mosi <= dataOut[7];
-          end
-        end
-        fsm_dataSend_fsm_enumDef_clockB1 : begin
-          if(en) begin
-            spi_sclk <= sclk_active;
-          end
-        end
-        fsm_dataSend_fsm_enumDef_driveB1 : begin
-          if(en) begin
-            spi_sclk <= (! sclk_active);
-            spi_mosi <= dataOut[7];
-          end
-        end
-        fsm_dataSend_fsm_enumDef_clockB0 : begin
-          if(en) begin
-            spi_sclk <= sclk_active;
-          end
-        end
-        fsm_dataSend_fsm_enumDef_driveB0 : begin
-          if(en) begin
-            spi_sclk <= (! sclk_active);
-            spi_mosi <= dataOut[7];
-          end
         end
         default : begin
         end
@@ -1383,71 +1173,18 @@ module SpiMaster (
     spi_miso <= io_spi_miso;
     en <= (! en);
     case(fsm_dataSend_fsm_stateReg)
+      fsm_dataSend_fsm_enumDef_drive : begin
+      end
+      fsm_dataSend_fsm_enumDef_clock : begin
+        if(en) begin
+          dataOut <= (dataOut <<< 1);
+          dataIn <= {dataIn[6 : 0],spi_miso};
+          if(!when_SpiMaster_l93) begin
+            bitCount <= (bitCount - 3'b001);
+          end
+        end
+      end
       fsm_dataSend_fsm_enumDef_exitState : begin
-      end
-      fsm_dataSend_fsm_enumDef_clockB7 : begin
-        if(en) begin
-          dataOut <= (dataOut <<< 1);
-          dataIn <= {dataIn[6 : 0],spi_miso};
-        end
-      end
-      fsm_dataSend_fsm_enumDef_driveB7 : begin
-      end
-      fsm_dataSend_fsm_enumDef_clockB6 : begin
-        if(en) begin
-          dataOut <= (dataOut <<< 1);
-          dataIn <= {dataIn[6 : 0],spi_miso};
-        end
-      end
-      fsm_dataSend_fsm_enumDef_driveB6 : begin
-      end
-      fsm_dataSend_fsm_enumDef_clockB5 : begin
-        if(en) begin
-          dataOut <= (dataOut <<< 1);
-          dataIn <= {dataIn[6 : 0],spi_miso};
-        end
-      end
-      fsm_dataSend_fsm_enumDef_driveB5 : begin
-      end
-      fsm_dataSend_fsm_enumDef_clockB4 : begin
-        if(en) begin
-          dataOut <= (dataOut <<< 1);
-          dataIn <= {dataIn[6 : 0],spi_miso};
-        end
-      end
-      fsm_dataSend_fsm_enumDef_driveB4 : begin
-      end
-      fsm_dataSend_fsm_enumDef_clockB3 : begin
-        if(en) begin
-          dataOut <= (dataOut <<< 1);
-          dataIn <= {dataIn[6 : 0],spi_miso};
-        end
-      end
-      fsm_dataSend_fsm_enumDef_driveB3 : begin
-      end
-      fsm_dataSend_fsm_enumDef_clockB2 : begin
-        if(en) begin
-          dataOut <= (dataOut <<< 1);
-          dataIn <= {dataIn[6 : 0],spi_miso};
-        end
-      end
-      fsm_dataSend_fsm_enumDef_driveB2 : begin
-      end
-      fsm_dataSend_fsm_enumDef_clockB1 : begin
-        if(en) begin
-          dataOut <= (dataOut <<< 1);
-          dataIn <= {dataIn[6 : 0],spi_miso};
-        end
-      end
-      fsm_dataSend_fsm_enumDef_driveB1 : begin
-      end
-      fsm_dataSend_fsm_enumDef_clockB0 : begin
-        if(en) begin
-          dataOut <= (dataOut <<< 1);
-          dataIn <= {dataIn[6 : 0],spi_miso};
-        end
-      end
-      fsm_dataSend_fsm_enumDef_driveB0 : begin
       end
       default : begin
       end
@@ -1470,6 +1207,9 @@ module SpiMaster (
       default : begin
       end
     endcase
+    if(when_StateMachine_l253) begin
+      bitCount <= 3'b111;
+    end
   end
 
 
