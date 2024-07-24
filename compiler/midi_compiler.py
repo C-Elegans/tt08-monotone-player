@@ -16,9 +16,13 @@ max_time = data.max_tick // resolution
 
 notes = [[] for i in range(max_time)]
 for instrument in data.instruments:
+    prev_end_idx = 0
     for msg in instrument.notes:
         start_idx = msg.start // resolution
+        if start_idx < prev_end_idx:
+            start_idx = prev_end_idx
         end_idx = ceil(msg.end / resolution)
+        prev_end_idx = end_idx
         for idx in range(start_idx, end_idx):
             if idx >= len(notes): break
             notes[idx].append(msg.pitch)
