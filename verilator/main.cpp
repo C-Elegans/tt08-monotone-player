@@ -24,14 +24,14 @@ int main(int argc, char** argv){
 
     VTop top{context.get()};
 
-    auto trace = std::make_unique<VerilatedVcdC>();
 #ifdef VCD
+    auto trace = std::make_unique<VerilatedVcdC>();
     top.trace(trace.get(), 99);
     trace->open("dump.vcd");
 #endif
 
     auto mem = SpiMemSim<VTop>("memory.bin");
-    auto audio = AudioDump<VTop>("audio.raw", clock_frequency, 100e3);
+    auto audio = AudioDump<VTop>("audio.raw", clock_frequency, 48e3);
 
     top.resetn = 0;
     top.clk = 0;
@@ -42,7 +42,7 @@ int main(int argc, char** argv){
     top.eval();
 
 
-    for(int i=0; i<1000000000; i++){
+    for(int i=0; i<2000000000; i++){
 	top.eval();
 	mem.callback(top);
 	audio.callback(top);
@@ -50,11 +50,15 @@ int main(int argc, char** argv){
 	context->timeInc(time_increment);
 	top.clk = 0;
 	top.eval();
+#ifdef VCD
 	trace->dump(context->time());
+#endif
 	context->timeInc(time_increment);
 	top.clk = 1;
 	top.eval();
+#ifdef VCD
 	trace->dump(context->time());
+#endif
     }
 
     top.final();
