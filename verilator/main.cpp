@@ -31,7 +31,7 @@ int main(int argc, char** argv){
 #endif
 
     auto mem = SpiMemSim<VTop>("memory.bin");
-    auto audio = AudioDump<VTop>("audio.raw", clock_frequency, 44.1e3);
+    auto audio = AudioDump<VTop>("audio.raw", clock_frequency, 100e3);
 
     top.resetn = 0;
     top.clk = 0;

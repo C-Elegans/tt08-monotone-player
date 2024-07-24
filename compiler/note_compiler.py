@@ -42,6 +42,10 @@ def note_frequency(note_str):
     power = int(m.group(2)) - 4
     return note_frequency * pow(2, power)
 
+def midi_note_frequency(note_id):
+    power = note_id - 69
+    return A * pow(2, power/12.0)
+
 def oscillator_frequency(divider):
     return prescale_frequency * divider / (2**12)
 
@@ -51,17 +55,23 @@ def calc_divider(frequency):
     return int(prescale_frequency / frequency)
     
 
-def note(note_str, oscillator=0):
-    freq = note_frequency(note_str)
+def writeNote(freq, oscillator=0):
     period = 1/freq * 1e6 if freq else 0
     div = calc_divider(freq)
-    print(f'{note_str} = {freq} Hz, {period=} us {div=}')
     if div:
         div -= 1
     cmd1 = (0x3 << 6) | (oscillator << 4) | ((div >> 8) & 0xF)
     f.write(struct.pack('B', cmd1))
     cmd2 = div & 0xff
     f.write(struct.pack('B', cmd2))
+
+def note(notestr, oscillator=0):
+    freq = note_frequency(notestr)
+    writeNote(freq, oscillator)
+
+def midinote(noteid, oscillator=0):
+    freq = midi_note_frequency(noteid)
+    writeNote(freq, oscillator)
 
 def wait(numFrames=1):
     cmd = 0x1 << 4 | (numFrames-1 & 0xF)
@@ -76,65 +86,3 @@ def framelength(count):
     cmd1 = 0x3 << 4 | (count & 0xf)
     f.write(struct.pack('B', cmd1))
 
-
-framelength(0xf)
-note('F4')
-note('', 1)
-wait()
-note('Eb4')
-wait()
-note('F4')
-wait()
-note('G4')
-wait()
-note('Ab4')
-note('F3', 1)
-wait()
-note('Eb3', 1)
-wait()
-note('F3', 1)
-wait()
-note('Bb4')
-note('G3', 1)
-wait()
-# measure 2
-note('C5')
-note('Ab3', 1)
-wait(2)
-note('Ab4')
-note('C4', 1)
-wait(2)
-note('G4')
-note('Bb3', 1)
-wait(3)
-note('Ab4')
-note('Ab3', 1)
-wait()
-# measure 3
-note('Bb4')
-note('G3', 1)
-wait(2)
-note('G4')
-note('Bb3', 1)
-wait(2)
-note('F4')
-note('Ab3', 1)
-wait(3)
-note('G4')
-note('Bb3', 1)
-wait(1)
-# measure 4
-note('Ab4')
-note('Ab3', 1)
-wait(2)
-note('G4')
-note('Bb3', 1)
-wait()
-note('Eb4')
-wait()
-#measure 5
-note('F4')
-note('C4', 1)
-wait(8)
-wait(8)
-jump(0)

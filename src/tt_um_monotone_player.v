@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.10.2a    git head : a348a60b7e8b6a455c72e1536ec3d74a2ea16935
 // Component : tt_um_monotone_player
-// Git hash  : 07498d687bee5dd5ac3cd1200bdf394119315b96
+// Git hash  : 49549969818d64ea08fdee939ff777bcb0de8fdc
 
 `timescale 1ns/1ps
 
@@ -528,9 +528,9 @@ module OscillatorControl (
   wire                controlFsm_wantKill;
   reg        [2:0]    controlFsm_stateReg;
   reg        [2:0]    controlFsm_stateNext;
-  wire       [3:0]    switch_OscillatorControl_l61;
+  wire       [3:0]    switch_OscillatorControl_l65;
   wire       [3:0]    _zz_frameLength;
-  wire                when_OscillatorControl_l100;
+  wire                when_OscillatorControl_l104;
   wire       [3:0]    _zz_1;
   wire       [11:0]   _zz_oscillatorControl_0;
   `ifndef SYNTHESIS
@@ -655,7 +655,7 @@ module OscillatorControl (
       end
       controlFsm_enumDef_decodeCmd : begin
         if(io_readResp_valid) begin
-          case(switch_OscillatorControl_l61)
+          case(switch_OscillatorControl_l65)
             4'b0000 : begin
               controlFsm_stateNext = controlFsm_enumDef_fetchCmd;
             end
@@ -684,7 +684,7 @@ module OscillatorControl (
       end
       controlFsm_enumDef_decodeCmd_waitFrameEnd : begin
         if(frameStart) begin
-          if(!when_OscillatorControl_l100) begin
+          if(!when_OscillatorControl_l104) begin
             controlFsm_stateNext = controlFsm_enumDef_fetchCmd;
           end
         end
@@ -720,9 +720,9 @@ module OscillatorControl (
     end
   end
 
-  assign switch_OscillatorControl_l61 = io_readResp_payload[7 : 4];
+  assign switch_OscillatorControl_l65 = io_readResp_payload[7 : 4];
   assign _zz_frameLength = io_readResp_payload[3 : 0];
-  assign when_OscillatorControl_l100 = (tempData != 4'b0000);
+  assign when_OscillatorControl_l104 = (tempData != 4'b0000);
   assign _zz_1 = ({3'd0,1'b1} <<< oscillatorSel);
   assign _zz_oscillatorControl_0 = {tempData,io_readResp_payload};
   always @(posedge clk or negedge rst_n) begin
@@ -750,7 +750,7 @@ module OscillatorControl (
         end
         controlFsm_enumDef_decodeCmd : begin
           if(io_readResp_valid) begin
-            case(switch_OscillatorControl_l61)
+            case(switch_OscillatorControl_l65)
               4'b0011 : begin
                 frameLength[15 : 12] <= _zz_frameLength;
               end
@@ -791,7 +791,7 @@ module OscillatorControl (
       controlFsm_enumDef_decodeCmd : begin
         if(io_readResp_valid) begin
           tempData <= _zz_frameLength;
-          case(switch_OscillatorControl_l61)
+          case(switch_OscillatorControl_l65)
             4'b1100 : begin
               oscillatorSel <= 2'b00;
             end
@@ -808,7 +808,7 @@ module OscillatorControl (
       end
       controlFsm_enumDef_decodeCmd_waitFrameEnd : begin
         if(frameStart) begin
-          if(when_OscillatorControl_l100) begin
+          if(when_OscillatorControl_l104) begin
             tempData <= (tempData - 4'b0001);
           end
         end
