@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.10.2a    git head : a348a60b7e8b6a455c72e1536ec3d74a2ea16935
 // Component : tt_um_monotone_player
-// Git hash  : 78b996b66e8f73176bd77fe7fa9969378705adf9
+// Git hash  : 18817b605d11929034a90e651c0bc731aa444d82
 
 `timescale 1ns/1ps
 
@@ -728,14 +728,14 @@ module OscillatorControl (
   localparam controlFsm_enumDef_readPC = 3'd6;
   localparam controlFsm_enumDef_setPC = 3'd7;
 
-  wire       [5:0]    _zz_oscillatorPrescaler_valueNext;
+  wire       [4:0]    _zz_oscillatorPrescaler_valueNext;
   wire       [0:0]    _zz_oscillatorPrescaler_valueNext_1;
   reg        [15:0]   pc;
   wire                when_Utils_l578;
   reg                 oscillatorPrescaler_willIncrement;
   wire                oscillatorPrescaler_willClear;
-  reg        [5:0]    oscillatorPrescaler_valueNext;
-  reg        [5:0]    oscillatorPrescaler_value;
+  reg        [4:0]    oscillatorPrescaler_valueNext;
+  reg        [4:0]    oscillatorPrescaler_value;
   wire                oscillatorPrescaler_willOverflowIfInc;
   wire                oscillatorPrescaler_willOverflow;
   reg        [15:0]   frameLength;
@@ -765,7 +765,7 @@ module OscillatorControl (
 
 
   assign _zz_oscillatorPrescaler_valueNext_1 = oscillatorPrescaler_willIncrement;
-  assign _zz_oscillatorPrescaler_valueNext = {5'd0, _zz_oscillatorPrescaler_valueNext_1};
+  assign _zz_oscillatorPrescaler_valueNext = {4'd0, _zz_oscillatorPrescaler_valueNext_1};
   `ifndef SYNTHESIS
   always @(*) begin
     case(controlFsm_stateReg)
@@ -804,12 +804,12 @@ module OscillatorControl (
   end
 
   assign oscillatorPrescaler_willClear = 1'b0;
-  assign oscillatorPrescaler_willOverflowIfInc = (oscillatorPrescaler_value == 6'h3f);
+  assign oscillatorPrescaler_willOverflowIfInc = (oscillatorPrescaler_value == 5'h1f);
   assign oscillatorPrescaler_willOverflow = (oscillatorPrescaler_willOverflowIfInc && oscillatorPrescaler_willIncrement);
   always @(*) begin
     oscillatorPrescaler_valueNext = (oscillatorPrescaler_value + _zz_oscillatorPrescaler_valueNext);
     if(oscillatorPrescaler_willClear) begin
-      oscillatorPrescaler_valueNext = 6'h0;
+      oscillatorPrescaler_valueNext = 5'h0;
     end
   end
 
@@ -957,7 +957,7 @@ module OscillatorControl (
   always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
       pc <= 16'h0;
-      oscillatorPrescaler_value <= 6'h0;
+      oscillatorPrescaler_value <= 5'h0;
       frameLength <= 16'hffff;
       count <= 16'h0;
       controlFsm_stateReg <= controlFsm_enumDef_BOOT;
@@ -1879,23 +1879,23 @@ module Oscillator (
   input  wire          enableArea_newClockEnable
 );
 
-  reg        [11:0]   counter;
+  reg        [12:0]   counter;
   reg                 toggle;
   wire                when_Oscillator_l15;
   wire                when_Oscillator_l17;
 
-  assign when_Oscillator_l15 = (counter == 12'h0);
+  assign when_Oscillator_l15 = (counter == 13'h0);
   assign when_Oscillator_l17 = (io_increment != 12'h0);
   assign io_oscillator = toggle;
   always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
-      counter <= 12'h0;
+      counter <= 13'h0;
     end else begin
       if(enableArea_newClockEnable) begin
         if(when_Oscillator_l15) begin
-          counter <= io_increment;
+          counter <= {io_increment,1'b0};
         end else begin
-          counter <= (counter - 12'h001);
+          counter <= (counter - 13'h0001);
         end
       end
     end

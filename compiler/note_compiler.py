@@ -6,7 +6,7 @@ note_regex = re.compile(r'^([A-Ga-g][#b]?)([0-9])$')
 
 A = 440
 clock_frequency = 20e6
-prescaler = 2**6
+prescaler = 2**7
 prescale_frequency = clock_frequency / prescaler
 
 

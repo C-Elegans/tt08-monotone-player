@@ -10,10 +10,10 @@ case class Oscillator(width: Int) extends Component {
     val oscillator = out(Bool())
   }
 
-  val counter = Reg(UInt(width bits)) init(0)
+  val counter = Reg(UInt(width+1 bits)) init(0)
   val toggle = Reg(False)
   when(counter === 0){
-    counter := io.increment
+    counter := (io.increment ## U(0, 1 bits)).asUInt
     when(io.increment =/= 0) {
       toggle := !toggle
     }

@@ -8,6 +8,7 @@
 #include <memory>
 
 //#define VCD
+//#define VGA
 
 int main(int argc, char** argv){
     double clock_frequency = 20e6;
@@ -33,7 +34,9 @@ int main(int argc, char** argv){
 
     auto mem = SpiMemSim<VTop>("memory.bin");
     auto audio = AudioDump<VTop>("audio.raw", clock_frequency, 48e3);
+#ifdef VGA
     auto vga = VGADump<VTop>("frames/", 800, 512);
+#endif
 
     top.resetn = 0;
     top.clk = 0;
@@ -48,7 +51,9 @@ int main(int argc, char** argv){
 	top.eval();
 	mem.callback(top);
 	audio.callback(top);
+#ifdef VGA
 	vga.callback(top);
+#endif
 	top.eval();
 	context->timeInc(time_increment);
 	top.clk = 0;
