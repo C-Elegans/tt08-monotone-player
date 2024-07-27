@@ -54,7 +54,7 @@ case class TapeoutTop() extends Component {
 
 
 case class Top(width: Int) extends Component {
-  val numOscillators = 3
+  val numOscillators = 4
   val io = new Bundle {
     val spi = master(com.spi.SpiMaster(ssWidth =1, useSclk = true))
     val osc = out(Bool())

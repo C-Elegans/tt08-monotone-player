@@ -6,6 +6,7 @@ VERILATOR_CXX_FLAGS=-O3
 VERILATOR_FLAGS+=-Wno-fatal
 VERILATOR_FLAGS+=--trace
 VERILATOR_FLAGS+=-x-assign fast
+VERILATOR_FLAGS+=-O3
 
 all: obj_dir/V$(TOP)
 

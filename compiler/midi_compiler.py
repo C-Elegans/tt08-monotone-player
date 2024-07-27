@@ -7,12 +7,14 @@ parser = ArgumentParser(prog='midi_compiler')
 parser.add_argument('midifile')
 parser.add_argument('romfile')
 parser.add_argument('--framelength', '-f', type=int, default=15, help='The frame length to set in the config')
+parser.add_argument('--resolution-divider', '-d', type=int, default=4, help='The minimum fraction of a beat')
+parser.add_argument('--channels', '-c', type=int, default=3, help='The number of channels to output to the rom')
 
 args = parser.parse_args()
 
 data = MidiFile(args.midifile)
 
-resolution = data.ticks_per_beat//4
+resolution = data.ticks_per_beat // args.resolution_divider
 max_time = data.max_tick // resolution
 
 
@@ -40,9 +42,12 @@ wait_counter = 0
 for note in notes:
     if prev_note != note and wait_counter != 0:
         print(f'waiting {wait_counter}')
+        while wait_counter > 16:
+            compiler.wait(16)
+            wait_counter -= 16
         compiler.wait(wait_counter)
         wait_counter = 0
-    for osc in range(3):
+    for osc in range(args.channels):
         if osc >= len(note) and osc >= len(prev_note):
             pass
         elif osc >= len(note) and osc < len(prev_note):

@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.10.2a    git head : a348a60b7e8b6a455c72e1536ec3d74a2ea16935
 // Component : tt_um_monotone_player
-// Git hash  : 49549969818d64ea08fdee939ff777bcb0de8fdc
+// Git hash  : ea9025722a3aba03c049a40db8727af081fff077
 
 `timescale 1ns/1ps
 
@@ -59,6 +59,7 @@ module Top (
   wire       [11:0]   oscillatorControl_1_io_oscillatorIncrements_0;
   wire       [11:0]   oscillatorControl_1_io_oscillatorIncrements_1;
   wire       [11:0]   oscillatorControl_1_io_oscillatorIncrements_2;
+  wire       [11:0]   oscillatorControl_1_io_oscillatorIncrements_3;
   wire                oscillatorControl_1_io_oscillator_en;
   wire                enableArea_oscillatorGroup_io_oscillator;
   wire                spiRom_1_io_spi_sclk;
@@ -78,6 +79,7 @@ module Top (
     .io_oscillatorIncrements_0 (oscillatorControl_1_io_oscillatorIncrements_0[11:0]), //o
     .io_oscillatorIncrements_1 (oscillatorControl_1_io_oscillatorIncrements_1[11:0]), //o
     .io_oscillatorIncrements_2 (oscillatorControl_1_io_oscillatorIncrements_2[11:0]), //o
+    .io_oscillatorIncrements_3 (oscillatorControl_1_io_oscillatorIncrements_3[11:0]), //o
     .io_oscillator_en          (oscillatorControl_1_io_oscillator_en               ), //o
     .clk                       (clk                                                ), //i
     .rst_n                     (rst_n                                              )  //i
@@ -86,6 +88,7 @@ module Top (
     .io_increments_0           (oscillatorControl_1_io_oscillatorIncrements_0[11:0]), //i
     .io_increments_1           (oscillatorControl_1_io_oscillatorIncrements_1[11:0]), //i
     .io_increments_2           (oscillatorControl_1_io_oscillatorIncrements_2[11:0]), //i
+    .io_increments_3           (oscillatorControl_1_io_oscillatorIncrements_3[11:0]), //i
     .io_oscillator             (enableArea_oscillatorGroup_io_oscillator           ), //o
     .clk                       (clk                                                ), //i
     .rst_n                     (rst_n                                              ), //i
@@ -408,74 +411,119 @@ module OscillatorGroup (
   input  wire [11:0]   io_increments_0,
   input  wire [11:0]   io_increments_1,
   input  wire [11:0]   io_increments_2,
+  input  wire [11:0]   io_increments_3,
   output wire          io_oscillator,
   input  wire          clk,
   input  wire          rst_n,
   input  wire          enableArea_newClockEnable
 );
 
-  wire                oscillator_3_io_oscillator;
   wire                oscillator_4_io_oscillator;
   wire                oscillator_5_io_oscillator;
-  reg        [1:0]    _zz_sigmaDelta_increment;
+  wire                oscillator_6_io_oscillator;
+  wire                oscillator_7_io_oscillator;
+  wire       [2:0]    _zz_sigmaDelta_increment_8;
+  reg        [2:0]    _zz_sigmaDelta_increment_9;
+  wire       [2:0]    _zz_sigmaDelta_increment_10;
+  reg        [2:0]    _zz_sigmaDelta_increment_11;
+  wire       [2:0]    _zz_sigmaDelta_increment_12;
+  wire       [0:0]    _zz_sigmaDelta_increment_13;
+  wire       [3:0]    oscillatorOutputs;
+  wire       [2:0]    _zz_sigmaDelta_increment;
   wire       [2:0]    _zz_sigmaDelta_increment_1;
-  wire       [2:0]    oscillatorOutputs;
-  wire       [1:0]    sigmaDelta_increment;
-  reg        [1:0]    sigmaDelta_counter;
-  wire       [2:0]    sigmaDelta_countResult;
+  wire       [2:0]    _zz_sigmaDelta_increment_2;
+  wire       [2:0]    _zz_sigmaDelta_increment_3;
+  wire       [2:0]    _zz_sigmaDelta_increment_4;
+  wire       [2:0]    _zz_sigmaDelta_increment_5;
+  wire       [2:0]    _zz_sigmaDelta_increment_6;
+  wire       [2:0]    _zz_sigmaDelta_increment_7;
+  wire       [2:0]    sigmaDelta_increment;
+  reg        [2:0]    sigmaDelta_counter;
+  wire       [3:0]    sigmaDelta_countResult;
   reg                 _zz_io_oscillator;
 
-  assign _zz_sigmaDelta_increment_1 = {oscillator_5_io_oscillator,{oscillator_4_io_oscillator,oscillator_3_io_oscillator}};
-  Oscillator oscillator_3 (
-    .io_increment              (io_increments_0[11:0]     ), //i
-    .io_oscillator             (oscillator_3_io_oscillator), //o
-    .clk                       (clk                       ), //i
-    .rst_n                     (rst_n                     ), //i
-    .enableArea_newClockEnable (enableArea_newClockEnable )  //i
-  );
+  assign _zz_sigmaDelta_increment_8 = (_zz_sigmaDelta_increment_9 + _zz_sigmaDelta_increment_11);
+  assign _zz_sigmaDelta_increment_13 = oscillator_7_io_oscillator;
+  assign _zz_sigmaDelta_increment_12 = {2'd0, _zz_sigmaDelta_increment_13};
+  assign _zz_sigmaDelta_increment_10 = {oscillator_6_io_oscillator,{oscillator_5_io_oscillator,oscillator_4_io_oscillator}};
   Oscillator oscillator_4 (
-    .io_increment              (io_increments_1[11:0]     ), //i
+    .io_increment              (io_increments_0[11:0]     ), //i
     .io_oscillator             (oscillator_4_io_oscillator), //o
     .clk                       (clk                       ), //i
     .rst_n                     (rst_n                     ), //i
     .enableArea_newClockEnable (enableArea_newClockEnable )  //i
   );
   Oscillator oscillator_5 (
-    .io_increment              (io_increments_2[11:0]     ), //i
+    .io_increment              (io_increments_1[11:0]     ), //i
     .io_oscillator             (oscillator_5_io_oscillator), //o
     .clk                       (clk                       ), //i
     .rst_n                     (rst_n                     ), //i
     .enableArea_newClockEnable (enableArea_newClockEnable )  //i
   );
+  Oscillator oscillator_6 (
+    .io_increment              (io_increments_2[11:0]     ), //i
+    .io_oscillator             (oscillator_6_io_oscillator), //o
+    .clk                       (clk                       ), //i
+    .rst_n                     (rst_n                     ), //i
+    .enableArea_newClockEnable (enableArea_newClockEnable )  //i
+  );
+  Oscillator oscillator_7 (
+    .io_increment              (io_increments_3[11:0]     ), //i
+    .io_oscillator             (oscillator_7_io_oscillator), //o
+    .clk                       (clk                       ), //i
+    .rst_n                     (rst_n                     ), //i
+    .enableArea_newClockEnable (enableArea_newClockEnable )  //i
+  );
   always @(*) begin
-    case(_zz_sigmaDelta_increment_1)
-      3'b000 : _zz_sigmaDelta_increment = 2'b00;
-      3'b001 : _zz_sigmaDelta_increment = 2'b01;
-      3'b010 : _zz_sigmaDelta_increment = 2'b01;
-      3'b011 : _zz_sigmaDelta_increment = 2'b10;
-      3'b100 : _zz_sigmaDelta_increment = 2'b01;
-      3'b101 : _zz_sigmaDelta_increment = 2'b10;
-      3'b110 : _zz_sigmaDelta_increment = 2'b10;
-      default : _zz_sigmaDelta_increment = 2'b11;
+    case(_zz_sigmaDelta_increment_10)
+      3'b000 : _zz_sigmaDelta_increment_9 = _zz_sigmaDelta_increment;
+      3'b001 : _zz_sigmaDelta_increment_9 = _zz_sigmaDelta_increment_1;
+      3'b010 : _zz_sigmaDelta_increment_9 = _zz_sigmaDelta_increment_2;
+      3'b011 : _zz_sigmaDelta_increment_9 = _zz_sigmaDelta_increment_3;
+      3'b100 : _zz_sigmaDelta_increment_9 = _zz_sigmaDelta_increment_4;
+      3'b101 : _zz_sigmaDelta_increment_9 = _zz_sigmaDelta_increment_5;
+      3'b110 : _zz_sigmaDelta_increment_9 = _zz_sigmaDelta_increment_6;
+      default : _zz_sigmaDelta_increment_9 = _zz_sigmaDelta_increment_7;
     endcase
   end
 
-  assign sigmaDelta_increment = (_zz_sigmaDelta_increment + 2'b01);
+  always @(*) begin
+    case(_zz_sigmaDelta_increment_12)
+      3'b000 : _zz_sigmaDelta_increment_11 = _zz_sigmaDelta_increment;
+      3'b001 : _zz_sigmaDelta_increment_11 = _zz_sigmaDelta_increment_1;
+      3'b010 : _zz_sigmaDelta_increment_11 = _zz_sigmaDelta_increment_2;
+      3'b011 : _zz_sigmaDelta_increment_11 = _zz_sigmaDelta_increment_3;
+      3'b100 : _zz_sigmaDelta_increment_11 = _zz_sigmaDelta_increment_4;
+      3'b101 : _zz_sigmaDelta_increment_11 = _zz_sigmaDelta_increment_5;
+      3'b110 : _zz_sigmaDelta_increment_11 = _zz_sigmaDelta_increment_6;
+      default : _zz_sigmaDelta_increment_11 = _zz_sigmaDelta_increment_7;
+    endcase
+  end
+
+  assign _zz_sigmaDelta_increment = 3'b000;
+  assign _zz_sigmaDelta_increment_1 = 3'b001;
+  assign _zz_sigmaDelta_increment_2 = 3'b001;
+  assign _zz_sigmaDelta_increment_3 = 3'b010;
+  assign _zz_sigmaDelta_increment_4 = 3'b001;
+  assign _zz_sigmaDelta_increment_5 = 3'b010;
+  assign _zz_sigmaDelta_increment_6 = 3'b010;
+  assign _zz_sigmaDelta_increment_7 = 3'b011;
+  assign sigmaDelta_increment = (_zz_sigmaDelta_increment_8 + 3'b001);
   assign sigmaDelta_countResult = ({1'b0,sigmaDelta_counter} + {1'b0,sigmaDelta_increment});
   assign io_oscillator = _zz_io_oscillator;
   always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
-      sigmaDelta_counter <= 2'b00;
+      sigmaDelta_counter <= 3'b000;
     end else begin
       if(enableArea_newClockEnable) begin
-        sigmaDelta_counter <= sigmaDelta_countResult[1:0];
+        sigmaDelta_counter <= sigmaDelta_countResult[2:0];
       end
     end
   end
 
   always @(posedge clk) begin
     if(enableArea_newClockEnable) begin
-      _zz_io_oscillator <= sigmaDelta_countResult[2];
+      _zz_io_oscillator <= sigmaDelta_countResult[3];
     end
   end
 
@@ -491,6 +539,7 @@ module OscillatorControl (
   output wire [11:0]   io_oscillatorIncrements_0,
   output wire [11:0]   io_oscillatorIncrements_1,
   output wire [11:0]   io_oscillatorIncrements_2,
+  output wire [11:0]   io_oscillatorIncrements_3,
   output wire          io_oscillator_en,
   input  wire          clk,
   input  wire          rst_n
@@ -521,6 +570,7 @@ module OscillatorControl (
   reg        [11:0]   oscillatorControl_0;
   reg        [11:0]   oscillatorControl_1;
   reg        [11:0]   oscillatorControl_2;
+  reg        [11:0]   oscillatorControl_3;
   reg        [1:0]    oscillatorSel;
   reg        [3:0]    tempData;
   wire                controlFsm_wantExit;
@@ -620,6 +670,7 @@ module OscillatorControl (
   assign io_oscillatorIncrements_0 = oscillatorControl_0;
   assign io_oscillatorIncrements_1 = oscillatorControl_1;
   assign io_oscillatorIncrements_2 = oscillatorControl_2;
+  assign io_oscillatorIncrements_3 = oscillatorControl_3;
   assign controlFsm_wantExit = 1'b0;
   always @(*) begin
     controlFsm_wantStart = 1'b0;
@@ -675,6 +726,9 @@ module OscillatorControl (
               controlFsm_stateNext = controlFsm_enumDef_setOscillatorRead;
             end
             4'b1110 : begin
+              controlFsm_stateNext = controlFsm_enumDef_setOscillatorRead;
+            end
+            4'b1111 : begin
               controlFsm_stateNext = controlFsm_enumDef_setOscillatorRead;
             end
             default : begin
@@ -801,6 +855,9 @@ module OscillatorControl (
             4'b1110 : begin
               oscillatorSel <= 2'b10;
             end
+            4'b1111 : begin
+              oscillatorSel <= 2'b11;
+            end
             default : begin
             end
           endcase
@@ -825,6 +882,9 @@ module OscillatorControl (
           end
           if(_zz_1[2]) begin
             oscillatorControl_2 <= _zz_oscillatorControl_0;
+          end
+          if(_zz_1[3]) begin
+            oscillatorControl_3 <= _zz_oscillatorControl_0;
           end
         end
       end
@@ -1175,6 +1235,8 @@ module SpiMaster (
 
 
 endmodule
+
+//Oscillator_3 replaced by Oscillator
 
 //Oscillator_2 replaced by Oscillator
 
