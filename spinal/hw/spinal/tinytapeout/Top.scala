@@ -76,7 +76,9 @@ case class Top(width: Int) extends Component {
   enableArea.oscillatorGroup.io.increments := oscillatorControl.io.oscillatorIncrements
   io.osc := enableArea.oscillatorGroup.io.oscillator
 
-  io.vga := io.vga.getZero
+
+  val vgaVideoGenerator = VGAVideoGenerator()
+  io.vga := vgaVideoGenerator.io.vga
 
   noIoPrefix();
 }

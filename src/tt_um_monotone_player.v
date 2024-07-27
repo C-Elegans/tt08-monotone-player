@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.10.2a    git head : a348a60b7e8b6a455c72e1536ec3d74a2ea16935
 // Component : tt_um_monotone_player
-// Git hash  : ea9025722a3aba03c049a40db8727af081fff077
+// Git hash  : aea3d5d8b5e9793dcd789b81bbbf9a4e1652763a
 
 `timescale 1ns/1ps
 
@@ -19,16 +19,26 @@ module tt_um_monotone_player (
   wire                top_1_spi_sclk;
   wire                top_1_spi_mosi;
   wire       [0:0]    top_1_spi_ss;
+  wire                top_1_vga_hsync;
+  wire                top_1_vga_vsync;
+  wire       [1:0]    top_1_vga_r;
+  wire       [1:0]    top_1_vga_g;
+  wire       [1:0]    top_1_vga_b;
   wire                top_1_osc;
 
   Top top_1 (
-    .spi_ss   (top_1_spi_ss  ), //o
-    .spi_sclk (top_1_spi_sclk), //o
-    .spi_mosi (top_1_spi_mosi), //o
-    .spi_miso (top_1_spi_miso), //i
-    .osc      (top_1_osc     ), //o
-    .clk      (clk           ), //i
-    .rst_n    (rst_n         )  //i
+    .spi_ss    (top_1_spi_ss    ), //o
+    .spi_sclk  (top_1_spi_sclk  ), //o
+    .spi_mosi  (top_1_spi_mosi  ), //o
+    .spi_miso  (top_1_spi_miso  ), //i
+    .vga_hsync (top_1_vga_hsync ), //o
+    .vga_vsync (top_1_vga_vsync ), //o
+    .vga_r     (top_1_vga_r[1:0]), //o
+    .vga_g     (top_1_vga_g[1:0]), //o
+    .vga_b     (top_1_vga_b[1:0]), //o
+    .osc       (top_1_osc       ), //o
+    .clk       (clk             ), //i
+    .rst_n     (rst_n           )  //i
   );
   assign uio_oe = 8'h0;
   assign uio_out = 8'h0;
@@ -49,6 +59,11 @@ module Top (
   output wire          spi_sclk,
   output wire          spi_mosi,
   input  wire          spi_miso,
+  output wire          vga_hsync,
+  output wire          vga_vsync,
+  output wire [1:0]    vga_r,
+  output wire [1:0]    vga_g,
+  output wire [1:0]    vga_b,
   output wire          osc,
   input  wire          clk,
   input  wire          rst_n
@@ -68,6 +83,11 @@ module Top (
   wire                spiRom_1_io_readReq_ready;
   wire                spiRom_1_io_readResp_valid;
   wire       [7:0]    spiRom_1_io_readResp_payload;
+  wire                vgaVideoGenerator_1_io_vga_hsync;
+  wire                vgaVideoGenerator_1_io_vga_vsync;
+  wire       [1:0]    vgaVideoGenerator_1_io_vga_r;
+  wire       [1:0]    vgaVideoGenerator_1_io_vga_g;
+  wire       [1:0]    vgaVideoGenerator_1_io_vga_b;
   wire                enableArea_newClockEnable;
 
   OscillatorControl oscillatorControl_1 (
@@ -107,11 +127,90 @@ module Top (
     .clk                 (clk                                         ), //i
     .rst_n               (rst_n                                       )  //i
   );
+  VGAVideoGenerator vgaVideoGenerator_1 (
+    .io_vga_hsync (vgaVideoGenerator_1_io_vga_hsync ), //o
+    .io_vga_vsync (vgaVideoGenerator_1_io_vga_vsync ), //o
+    .io_vga_r     (vgaVideoGenerator_1_io_vga_r[1:0]), //o
+    .io_vga_g     (vgaVideoGenerator_1_io_vga_g[1:0]), //o
+    .io_vga_b     (vgaVideoGenerator_1_io_vga_b[1:0]), //o
+    .clk          (clk                              ), //i
+    .rst_n        (rst_n                            )  //i
+  );
   assign enableArea_newClockEnable = (1'b1 && oscillatorControl_1_io_oscillator_en);
   assign spi_ss = spiRom_1_io_spi_ss;
   assign spi_sclk = spiRom_1_io_spi_sclk;
   assign spi_mosi = spiRom_1_io_spi_mosi;
   assign osc = enableArea_oscillatorGroup_io_oscillator;
+  assign vga_hsync = vgaVideoGenerator_1_io_vga_hsync;
+  assign vga_vsync = vgaVideoGenerator_1_io_vga_vsync;
+  assign vga_r = vgaVideoGenerator_1_io_vga_r;
+  assign vga_g = vgaVideoGenerator_1_io_vga_g;
+  assign vga_b = vgaVideoGenerator_1_io_vga_b;
+
+endmodule
+
+module VGAVideoGenerator (
+  output wire          io_vga_hsync,
+  output wire          io_vga_vsync,
+  output reg  [1:0]    io_vga_r,
+  output reg  [1:0]    io_vga_g,
+  output reg  [1:0]    io_vga_b,
+  input  wire          clk,
+  input  wire          rst_n
+);
+
+  wire                timing_generator_io_hsync;
+  wire                timing_generator_io_vsync;
+  wire                timing_generator_io_video_active;
+  wire                timing_generator_io_frame_start;
+  wire                timing_generator_io_line_start;
+  wire       [9:0]    timing_generator_io_x_coord;
+  wire       [8:0]    timing_generator_io_y_coord;
+  reg        [7:0]    frame_count;
+
+  VGATimingGenerator timing_generator (
+    .io_hsync        (timing_generator_io_hsync       ), //o
+    .io_vsync        (timing_generator_io_vsync       ), //o
+    .io_video_active (timing_generator_io_video_active), //o
+    .io_frame_start  (timing_generator_io_frame_start ), //o
+    .io_line_start   (timing_generator_io_line_start  ), //o
+    .io_x_coord      (timing_generator_io_x_coord[9:0]), //o
+    .io_y_coord      (timing_generator_io_y_coord[8:0]), //o
+    .clk             (clk                             ), //i
+    .rst_n           (rst_n                           )  //i
+  );
+  assign io_vga_hsync = timing_generator_io_hsync;
+  assign io_vga_vsync = timing_generator_io_vsync;
+  always @(*) begin
+    if(timing_generator_io_video_active) begin
+      io_vga_r = timing_generator_io_x_coord[8 : 7];
+    end else begin
+      io_vga_r = 2'b00;
+    end
+  end
+
+  always @(*) begin
+    if(timing_generator_io_video_active) begin
+      io_vga_g = frame_count[5 : 4];
+    end else begin
+      io_vga_g = 2'b00;
+    end
+  end
+
+  always @(*) begin
+    if(timing_generator_io_video_active) begin
+      io_vga_b = frame_count[7 : 6];
+    end else begin
+      io_vga_b = 2'b00;
+    end
+  end
+
+  always @(posedge clk) begin
+    if(timing_generator_io_frame_start) begin
+      frame_count <= (frame_count + 8'h01);
+    end
+  end
+
 
 endmodule
 
@@ -895,6 +994,460 @@ module OscillatorControl (
       default : begin
       end
     endcase
+  end
+
+
+endmodule
+
+module VGATimingGenerator (
+  output reg           io_hsync,
+  output reg           io_vsync,
+  output reg           io_video_active,
+  output reg           io_frame_start,
+  output reg           io_line_start,
+  output reg  [9:0]    io_x_coord,
+  output reg  [8:0]    io_y_coord,
+  input  wire          clk,
+  input  wire          rst_n
+);
+  localparam hSyncFsm_enumDef_BOOT = 3'd0;
+  localparam hSyncFsm_enumDef_frontPorch = 3'd1;
+  localparam hSyncFsm_enumDef_visible = 3'd2;
+  localparam hSyncFsm_enumDef_backPorch = 3'd3;
+  localparam hSyncFsm_enumDef_sync = 3'd4;
+  localparam vSyncFsm_enumDef_BOOT = 3'd0;
+  localparam vSyncFsm_enumDef_frontPorch = 3'd1;
+  localparam vSyncFsm_enumDef_visible = 3'd2;
+  localparam vSyncFsm_enumDef_backPorch = 3'd3;
+  localparam vSyncFsm_enumDef_sync = 3'd4;
+
+  reg        [9:0]    xCounter;
+  reg        [8:0]    yCounter;
+  reg                 newLine;
+  wire                hSyncFsm_wantExit;
+  reg                 hSyncFsm_wantStart;
+  wire                hSyncFsm_wantKill;
+  wire                vSyncFsm_wantExit;
+  reg                 vSyncFsm_wantStart;
+  wire                vSyncFsm_wantKill;
+  reg        [2:0]    hSyncFsm_stateReg;
+  reg        [2:0]    hSyncFsm_stateNext;
+  wire                when_VGA_l57;
+  wire                when_VGA_l69;
+  wire                when_VGA_l78;
+  wire                when_VGA_l89;
+  reg        [2:0]    vSyncFsm_stateReg;
+  reg        [2:0]    vSyncFsm_stateNext;
+  wire                when_VGA_l104;
+  wire                when_VGA_l117;
+  wire                when_VGA_l129;
+  wire                when_VGA_l143;
+  `ifndef SYNTHESIS
+  reg [79:0] hSyncFsm_stateReg_string;
+  reg [79:0] hSyncFsm_stateNext_string;
+  reg [79:0] vSyncFsm_stateReg_string;
+  reg [79:0] vSyncFsm_stateNext_string;
+  `endif
+
+
+  `ifndef SYNTHESIS
+  always @(*) begin
+    case(hSyncFsm_stateReg)
+      hSyncFsm_enumDef_BOOT : hSyncFsm_stateReg_string = "BOOT      ";
+      hSyncFsm_enumDef_frontPorch : hSyncFsm_stateReg_string = "frontPorch";
+      hSyncFsm_enumDef_visible : hSyncFsm_stateReg_string = "visible   ";
+      hSyncFsm_enumDef_backPorch : hSyncFsm_stateReg_string = "backPorch ";
+      hSyncFsm_enumDef_sync : hSyncFsm_stateReg_string = "sync      ";
+      default : hSyncFsm_stateReg_string = "??????????";
+    endcase
+  end
+  always @(*) begin
+    case(hSyncFsm_stateNext)
+      hSyncFsm_enumDef_BOOT : hSyncFsm_stateNext_string = "BOOT      ";
+      hSyncFsm_enumDef_frontPorch : hSyncFsm_stateNext_string = "frontPorch";
+      hSyncFsm_enumDef_visible : hSyncFsm_stateNext_string = "visible   ";
+      hSyncFsm_enumDef_backPorch : hSyncFsm_stateNext_string = "backPorch ";
+      hSyncFsm_enumDef_sync : hSyncFsm_stateNext_string = "sync      ";
+      default : hSyncFsm_stateNext_string = "??????????";
+    endcase
+  end
+  always @(*) begin
+    case(vSyncFsm_stateReg)
+      vSyncFsm_enumDef_BOOT : vSyncFsm_stateReg_string = "BOOT      ";
+      vSyncFsm_enumDef_frontPorch : vSyncFsm_stateReg_string = "frontPorch";
+      vSyncFsm_enumDef_visible : vSyncFsm_stateReg_string = "visible   ";
+      vSyncFsm_enumDef_backPorch : vSyncFsm_stateReg_string = "backPorch ";
+      vSyncFsm_enumDef_sync : vSyncFsm_stateReg_string = "sync      ";
+      default : vSyncFsm_stateReg_string = "??????????";
+    endcase
+  end
+  always @(*) begin
+    case(vSyncFsm_stateNext)
+      vSyncFsm_enumDef_BOOT : vSyncFsm_stateNext_string = "BOOT      ";
+      vSyncFsm_enumDef_frontPorch : vSyncFsm_stateNext_string = "frontPorch";
+      vSyncFsm_enumDef_visible : vSyncFsm_stateNext_string = "visible   ";
+      vSyncFsm_enumDef_backPorch : vSyncFsm_stateNext_string = "backPorch ";
+      vSyncFsm_enumDef_sync : vSyncFsm_stateNext_string = "sync      ";
+      default : vSyncFsm_stateNext_string = "??????????";
+    endcase
+  end
+  `endif
+
+  always @(*) begin
+    io_x_coord = 10'h0;
+    case(hSyncFsm_stateReg)
+      hSyncFsm_enumDef_frontPorch : begin
+      end
+      hSyncFsm_enumDef_visible : begin
+        io_x_coord = xCounter;
+      end
+      hSyncFsm_enumDef_backPorch : begin
+      end
+      hSyncFsm_enumDef_sync : begin
+      end
+      default : begin
+      end
+    endcase
+  end
+
+  always @(*) begin
+    io_y_coord = 9'h0;
+    case(vSyncFsm_stateReg)
+      vSyncFsm_enumDef_frontPorch : begin
+      end
+      vSyncFsm_enumDef_visible : begin
+        io_y_coord = yCounter;
+      end
+      vSyncFsm_enumDef_backPorch : begin
+      end
+      vSyncFsm_enumDef_sync : begin
+      end
+      default : begin
+      end
+    endcase
+  end
+
+  always @(*) begin
+    io_hsync = 1'b0;
+    case(hSyncFsm_stateReg)
+      hSyncFsm_enumDef_frontPorch : begin
+      end
+      hSyncFsm_enumDef_visible : begin
+      end
+      hSyncFsm_enumDef_backPorch : begin
+      end
+      hSyncFsm_enumDef_sync : begin
+        io_hsync = 1'b1;
+      end
+      default : begin
+      end
+    endcase
+  end
+
+  always @(*) begin
+    io_vsync = 1'b0;
+    case(vSyncFsm_stateReg)
+      vSyncFsm_enumDef_frontPorch : begin
+      end
+      vSyncFsm_enumDef_visible : begin
+      end
+      vSyncFsm_enumDef_backPorch : begin
+      end
+      vSyncFsm_enumDef_sync : begin
+        io_vsync = 1'b1;
+      end
+      default : begin
+      end
+    endcase
+  end
+
+  always @(*) begin
+    io_frame_start = 1'b0;
+    case(vSyncFsm_stateReg)
+      vSyncFsm_enumDef_frontPorch : begin
+        if(newLine) begin
+          if(when_VGA_l104) begin
+            io_frame_start = 1'b1;
+          end
+        end
+      end
+      vSyncFsm_enumDef_visible : begin
+      end
+      vSyncFsm_enumDef_backPorch : begin
+      end
+      vSyncFsm_enumDef_sync : begin
+      end
+      default : begin
+      end
+    endcase
+  end
+
+  always @(*) begin
+    io_line_start = 1'b0;
+    case(hSyncFsm_stateReg)
+      hSyncFsm_enumDef_frontPorch : begin
+        if(when_VGA_l57) begin
+          io_line_start = 1'b1;
+        end
+      end
+      hSyncFsm_enumDef_visible : begin
+      end
+      hSyncFsm_enumDef_backPorch : begin
+      end
+      hSyncFsm_enumDef_sync : begin
+      end
+      default : begin
+      end
+    endcase
+  end
+
+  always @(*) begin
+    io_video_active = 1'b0;
+    case(hSyncFsm_stateReg)
+      hSyncFsm_enumDef_frontPorch : begin
+      end
+      hSyncFsm_enumDef_visible : begin
+        io_video_active = 1'b1;
+      end
+      hSyncFsm_enumDef_backPorch : begin
+      end
+      hSyncFsm_enumDef_sync : begin
+      end
+      default : begin
+      end
+    endcase
+    case(vSyncFsm_stateReg)
+      vSyncFsm_enumDef_frontPorch : begin
+        io_video_active = 1'b0;
+      end
+      vSyncFsm_enumDef_visible : begin
+      end
+      vSyncFsm_enumDef_backPorch : begin
+        io_video_active = 1'b0;
+      end
+      vSyncFsm_enumDef_sync : begin
+        io_video_active = 1'b0;
+      end
+      default : begin
+      end
+    endcase
+  end
+
+  always @(*) begin
+    newLine = 1'b0;
+    case(hSyncFsm_stateReg)
+      hSyncFsm_enumDef_frontPorch : begin
+      end
+      hSyncFsm_enumDef_visible : begin
+      end
+      hSyncFsm_enumDef_backPorch : begin
+      end
+      hSyncFsm_enumDef_sync : begin
+        if(when_VGA_l89) begin
+          newLine = 1'b1;
+        end
+      end
+      default : begin
+      end
+    endcase
+  end
+
+  assign hSyncFsm_wantExit = 1'b0;
+  always @(*) begin
+    hSyncFsm_wantStart = 1'b0;
+    case(hSyncFsm_stateReg)
+      hSyncFsm_enumDef_frontPorch : begin
+      end
+      hSyncFsm_enumDef_visible : begin
+      end
+      hSyncFsm_enumDef_backPorch : begin
+      end
+      hSyncFsm_enumDef_sync : begin
+      end
+      default : begin
+        hSyncFsm_wantStart = 1'b1;
+      end
+    endcase
+  end
+
+  assign hSyncFsm_wantKill = 1'b0;
+  assign vSyncFsm_wantExit = 1'b0;
+  always @(*) begin
+    vSyncFsm_wantStart = 1'b0;
+    case(vSyncFsm_stateReg)
+      vSyncFsm_enumDef_frontPorch : begin
+      end
+      vSyncFsm_enumDef_visible : begin
+      end
+      vSyncFsm_enumDef_backPorch : begin
+      end
+      vSyncFsm_enumDef_sync : begin
+      end
+      default : begin
+        vSyncFsm_wantStart = 1'b1;
+      end
+    endcase
+  end
+
+  assign vSyncFsm_wantKill = 1'b0;
+  always @(*) begin
+    hSyncFsm_stateNext = hSyncFsm_stateReg;
+    case(hSyncFsm_stateReg)
+      hSyncFsm_enumDef_frontPorch : begin
+        if(when_VGA_l57) begin
+          hSyncFsm_stateNext = hSyncFsm_enumDef_visible;
+        end
+      end
+      hSyncFsm_enumDef_visible : begin
+        if(when_VGA_l69) begin
+          hSyncFsm_stateNext = hSyncFsm_enumDef_backPorch;
+        end
+      end
+      hSyncFsm_enumDef_backPorch : begin
+        if(when_VGA_l78) begin
+          hSyncFsm_stateNext = hSyncFsm_enumDef_sync;
+        end
+      end
+      hSyncFsm_enumDef_sync : begin
+        if(when_VGA_l89) begin
+          hSyncFsm_stateNext = hSyncFsm_enumDef_frontPorch;
+        end
+      end
+      default : begin
+      end
+    endcase
+    if(hSyncFsm_wantStart) begin
+      hSyncFsm_stateNext = hSyncFsm_enumDef_frontPorch;
+    end
+    if(hSyncFsm_wantKill) begin
+      hSyncFsm_stateNext = hSyncFsm_enumDef_BOOT;
+    end
+  end
+
+  assign when_VGA_l57 = (xCounter == 10'h00b);
+  assign when_VGA_l69 = (xCounter == 10'h1fb);
+  assign when_VGA_l78 = (xCounter == 10'h026);
+  assign when_VGA_l89 = (xCounter == 10'h04b);
+  always @(*) begin
+    vSyncFsm_stateNext = vSyncFsm_stateReg;
+    case(vSyncFsm_stateReg)
+      vSyncFsm_enumDef_frontPorch : begin
+        if(newLine) begin
+          if(when_VGA_l104) begin
+            vSyncFsm_stateNext = vSyncFsm_enumDef_visible;
+          end
+        end
+      end
+      vSyncFsm_enumDef_visible : begin
+        if(newLine) begin
+          if(when_VGA_l117) begin
+            vSyncFsm_stateNext = vSyncFsm_enumDef_backPorch;
+          end
+        end
+      end
+      vSyncFsm_enumDef_backPorch : begin
+        if(newLine) begin
+          if(when_VGA_l129) begin
+            vSyncFsm_stateNext = vSyncFsm_enumDef_sync;
+          end
+        end
+      end
+      vSyncFsm_enumDef_sync : begin
+        if(newLine) begin
+          if(when_VGA_l143) begin
+            vSyncFsm_stateNext = vSyncFsm_enumDef_frontPorch;
+          end
+        end
+      end
+      default : begin
+      end
+    endcase
+    if(vSyncFsm_wantStart) begin
+      vSyncFsm_stateNext = vSyncFsm_enumDef_frontPorch;
+    end
+    if(vSyncFsm_wantKill) begin
+      vSyncFsm_stateNext = vSyncFsm_enumDef_BOOT;
+    end
+  end
+
+  assign when_VGA_l104 = (yCounter == 9'h009);
+  assign when_VGA_l117 = (yCounter == 9'h1df);
+  assign when_VGA_l129 = (yCounter == 9'h020);
+  assign when_VGA_l143 = (yCounter == 9'h001);
+  always @(posedge clk or negedge rst_n) begin
+    if(!rst_n) begin
+      xCounter <= 10'h0;
+      yCounter <= 9'h0;
+      hSyncFsm_stateReg <= hSyncFsm_enumDef_BOOT;
+      vSyncFsm_stateReg <= vSyncFsm_enumDef_BOOT;
+    end else begin
+      hSyncFsm_stateReg <= hSyncFsm_stateNext;
+      case(hSyncFsm_stateReg)
+        hSyncFsm_enumDef_frontPorch : begin
+          xCounter <= (xCounter + 10'h001);
+          if(when_VGA_l57) begin
+            xCounter <= 10'h0;
+          end
+        end
+        hSyncFsm_enumDef_visible : begin
+          xCounter <= (xCounter + 10'h001);
+          if(when_VGA_l69) begin
+            xCounter <= 10'h0;
+          end
+        end
+        hSyncFsm_enumDef_backPorch : begin
+          xCounter <= (xCounter + 10'h001);
+          if(when_VGA_l78) begin
+            xCounter <= 10'h0;
+          end
+        end
+        hSyncFsm_enumDef_sync : begin
+          xCounter <= (xCounter + 10'h001);
+          if(when_VGA_l89) begin
+            xCounter <= 10'h0;
+          end
+        end
+        default : begin
+        end
+      endcase
+      vSyncFsm_stateReg <= vSyncFsm_stateNext;
+      case(vSyncFsm_stateReg)
+        vSyncFsm_enumDef_frontPorch : begin
+          if(newLine) begin
+            yCounter <= (yCounter + 9'h001);
+            if(when_VGA_l104) begin
+              yCounter <= 9'h0;
+            end
+          end
+        end
+        vSyncFsm_enumDef_visible : begin
+          if(newLine) begin
+            yCounter <= (yCounter + 9'h001);
+            if(when_VGA_l117) begin
+              yCounter <= 9'h0;
+            end
+          end
+        end
+        vSyncFsm_enumDef_backPorch : begin
+          if(newLine) begin
+            yCounter <= (yCounter + 9'h001);
+            if(when_VGA_l129) begin
+              yCounter <= 9'h0;
+            end
+          end
+        end
+        vSyncFsm_enumDef_sync : begin
+          if(newLine) begin
+            yCounter <= (yCounter + 9'h001);
+            if(when_VGA_l143) begin
+              yCounter <= 9'h0;
+            end
+          end
+        end
+        default : begin
+        end
+      endcase
+    end
   end
 
 

@@ -2,6 +2,7 @@
 #include <verilated_vcd_c.h>
 #include "spi_mem.h"
 #include "audio_dump.h"
+#include "vga_dump.h"
 
 #include <VTop.h>
 #include <memory>
@@ -32,6 +33,7 @@ int main(int argc, char** argv){
 
     auto mem = SpiMemSim<VTop>("memory.bin");
     auto audio = AudioDump<VTop>("audio.raw", clock_frequency, 48e3);
+    auto vga = VGADump<VTop>("frames/", 800, 512);
 
     top.resetn = 0;
     top.clk = 0;
@@ -46,6 +48,7 @@ int main(int argc, char** argv){
 	top.eval();
 	mem.callback(top);
 	audio.callback(top);
+	vga.callback(top);
 	top.eval();
 	context->timeInc(time_increment);
 	top.clk = 0;

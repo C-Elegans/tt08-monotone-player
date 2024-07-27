@@ -22,6 +22,8 @@ case class VGATimingGenerator() extends Component {
     val vsync = out(Bool())
 
     val video_active = out(Bool())
+    val frame_start = out(Bool())
+    val line_start = out(Bool())
     val x_coord = out(UInt(log2Up(xResolution) bits))
     val y_coord = out(UInt(log2Up(yResolution) bits))
   }
@@ -41,6 +43,8 @@ case class VGATimingGenerator() extends Component {
   io.y_coord := 0
   io.hsync := False
   io.vsync := False
+  io.frame_start := False
+  io.line_start := False
   io.video_active := False
 
   val newLine = Bool()
@@ -52,6 +56,7 @@ case class VGATimingGenerator() extends Component {
         xCounter := xCounter + 1
         when(xCounter === (hFrontPorchTime * ClockDomain.current.frequency.getValue - 1).toBigInt){
           xCounter := 0
+          io.line_start := True
           goto(visible)
         }
       }
@@ -98,6 +103,7 @@ case class VGATimingGenerator() extends Component {
           yCounter := yCounter + 1
           when(yCounter === vFrontPorchLines-1){
             yCounter := 0
+            io.frame_start := True
             goto(visible)
           }
         }
