@@ -12,11 +12,14 @@ object Config {
       resetActiveLevel = LOW,
       resetKind = ASYNC
     ),
+    defaultClockDomainFrequency = FixedFrequency(20 MHz),
     onlyStdLogicVectorAtTopLevelIo = true
   )
 
   def sim = SimConfig.withConfig(spinal).withFstWave
 }
+
+
 
 // Hardware definition
 case class TapeoutTop() extends Component {
@@ -57,6 +60,7 @@ case class Top(width: Int) extends Component {
   val numOscillators = 4
   val io = new Bundle {
     val spi = master(com.spi.SpiMaster(ssWidth =1, useSclk = true))
+    val vga = out(VGA())
     val osc = out(Bool())
   }
   val oscillatorControl = OscillatorControl(numOscillators)
@@ -71,6 +75,8 @@ case class Top(width: Int) extends Component {
   oscillatorControl.io.readResp << spiRom.io.readResp
   enableArea.oscillatorGroup.io.increments := oscillatorControl.io.oscillatorIncrements
   io.osc := enableArea.oscillatorGroup.io.oscillator
+
+  io.vga := io.vga.getZero
 
   noIoPrefix();
 }
