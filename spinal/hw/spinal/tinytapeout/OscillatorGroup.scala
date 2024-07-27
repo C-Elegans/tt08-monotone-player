@@ -7,9 +7,11 @@ import spinal.lib._
 case class OscillatorGroup(width: Int, numOscillators: Int) extends Component {
   val io = new Bundle {
     val increments = in(Vec(UInt(width bits), numOscillators))
+    val oscillator_outputs = out(Bits(numOscillators bits))
     val oscillator = out(Bool())
   }
   val oscillatorOutputs = Bits(numOscillators bits)
+  io.oscillator_outputs := oscillatorOutputs
 
   val outputs = for(input <- io.increments) yield {
     val oscillator = Oscillator(width)
@@ -17,6 +19,9 @@ case class OscillatorGroup(width: Int, numOscillators: Int) extends Component {
 
     oscillator.io.oscillator
   }
+  oscillatorOutputs := Vec(outputs).asBits
+
+
   val sigmaDelta = new Area {
     val increment = CountOne(outputs) + 1
 

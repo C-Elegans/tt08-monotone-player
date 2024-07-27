@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.10.2a    git head : a348a60b7e8b6a455c72e1536ec3d74a2ea16935
 // Component : tt_um_monotone_player
-// Git hash  : aea3d5d8b5e9793dcd789b81bbbf9a4e1652763a
+// Git hash  : ba9a1c76a0bde86b63f7b01d93fa517e00d595b5
 
 `timescale 1ns/1ps
 
@@ -76,6 +76,7 @@ module Top (
   wire       [11:0]   oscillatorControl_1_io_oscillatorIncrements_2;
   wire       [11:0]   oscillatorControl_1_io_oscillatorIncrements_3;
   wire                oscillatorControl_1_io_oscillator_en;
+  wire       [3:0]    enableArea_oscillatorGroup_io_oscillator_outputs;
   wire                enableArea_oscillatorGroup_io_oscillator;
   wire                spiRom_1_io_spi_sclk;
   wire                spiRom_1_io_spi_mosi;
@@ -105,14 +106,15 @@ module Top (
     .rst_n                     (rst_n                                              )  //i
   );
   OscillatorGroup enableArea_oscillatorGroup (
-    .io_increments_0           (oscillatorControl_1_io_oscillatorIncrements_0[11:0]), //i
-    .io_increments_1           (oscillatorControl_1_io_oscillatorIncrements_1[11:0]), //i
-    .io_increments_2           (oscillatorControl_1_io_oscillatorIncrements_2[11:0]), //i
-    .io_increments_3           (oscillatorControl_1_io_oscillatorIncrements_3[11:0]), //i
-    .io_oscillator             (enableArea_oscillatorGroup_io_oscillator           ), //o
-    .clk                       (clk                                                ), //i
-    .rst_n                     (rst_n                                              ), //i
-    .enableArea_newClockEnable (enableArea_newClockEnable                          )  //i
+    .io_increments_0           (oscillatorControl_1_io_oscillatorIncrements_0[11:0]  ), //i
+    .io_increments_1           (oscillatorControl_1_io_oscillatorIncrements_1[11:0]  ), //i
+    .io_increments_2           (oscillatorControl_1_io_oscillatorIncrements_2[11:0]  ), //i
+    .io_increments_3           (oscillatorControl_1_io_oscillatorIncrements_3[11:0]  ), //i
+    .io_oscillator_outputs     (enableArea_oscillatorGroup_io_oscillator_outputs[3:0]), //o
+    .io_oscillator             (enableArea_oscillatorGroup_io_oscillator             ), //o
+    .clk                       (clk                                                  ), //i
+    .rst_n                     (rst_n                                                ), //i
+    .enableArea_newClockEnable (enableArea_newClockEnable                            )  //i
   );
   SpiRom spiRom_1 (
     .io_spi_ss           (spiRom_1_io_spi_ss                          ), //o
@@ -128,13 +130,20 @@ module Top (
     .rst_n               (rst_n                                       )  //i
   );
   VGAVideoGenerator vgaVideoGenerator_1 (
-    .io_vga_hsync (vgaVideoGenerator_1_io_vga_hsync ), //o
-    .io_vga_vsync (vgaVideoGenerator_1_io_vga_vsync ), //o
-    .io_vga_r     (vgaVideoGenerator_1_io_vga_r[1:0]), //o
-    .io_vga_g     (vgaVideoGenerator_1_io_vga_g[1:0]), //o
-    .io_vga_b     (vgaVideoGenerator_1_io_vga_b[1:0]), //o
-    .clk          (clk                              ), //i
-    .rst_n        (rst_n                            )  //i
+    .io_vga_hsync                   (vgaVideoGenerator_1_io_vga_hsync                     ), //o
+    .io_vga_vsync                   (vgaVideoGenerator_1_io_vga_vsync                     ), //o
+    .io_vga_r                       (vgaVideoGenerator_1_io_vga_r[1:0]                    ), //o
+    .io_vga_g                       (vgaVideoGenerator_1_io_vga_g[1:0]                    ), //o
+    .io_vga_b                       (vgaVideoGenerator_1_io_vga_b[1:0]                    ), //o
+    .io_oscillatorData_increments_0 (oscillatorControl_1_io_oscillatorIncrements_0[11:0]  ), //i
+    .io_oscillatorData_increments_1 (oscillatorControl_1_io_oscillatorIncrements_1[11:0]  ), //i
+    .io_oscillatorData_increments_2 (oscillatorControl_1_io_oscillatorIncrements_2[11:0]  ), //i
+    .io_oscillatorData_increments_3 (oscillatorControl_1_io_oscillatorIncrements_3[11:0]  ), //i
+    .io_oscillatorData_combined     (enableArea_oscillatorGroup_io_oscillator             ), //i
+    .io_oscillatorData_outputs      (enableArea_oscillatorGroup_io_oscillator_outputs[3:0]), //i
+    .io_oscillatorData_enable       (oscillatorControl_1_io_oscillator_en                 ), //i
+    .clk                            (clk                                                  ), //i
+    .rst_n                          (rst_n                                                )  //i
   );
   assign enableArea_newClockEnable = (1'b1 && oscillatorControl_1_io_oscillator_en);
   assign spi_ss = spiRom_1_io_spi_ss;
@@ -155,6 +164,13 @@ module VGAVideoGenerator (
   output reg  [1:0]    io_vga_r,
   output reg  [1:0]    io_vga_g,
   output reg  [1:0]    io_vga_b,
+  input  wire [11:0]   io_oscillatorData_increments_0,
+  input  wire [11:0]   io_oscillatorData_increments_1,
+  input  wire [11:0]   io_oscillatorData_increments_2,
+  input  wire [11:0]   io_oscillatorData_increments_3,
+  input  wire          io_oscillatorData_combined,
+  input  wire [3:0]    io_oscillatorData_outputs,
+  input  wire          io_oscillatorData_enable,
   input  wire          clk,
   input  wire          rst_n
 );
@@ -166,8 +182,22 @@ module VGAVideoGenerator (
   wire                timing_generator_io_line_start;
   wire       [9:0]    timing_generator_io_x_coord;
   wire       [8:0]    timing_generator_io_y_coord;
+  wire       [9:0]    _zz_when_VGAVideoGenerator_l35;
+  wire       [8:0]    _zz_when_VGAVideoGenerator_l35_1;
+  wire       [9:0]    _zz_when_VGAVideoGenerator_l39;
+  wire       [8:0]    _zz_when_VGAVideoGenerator_l39_1;
   reg        [7:0]    frame_count;
+  wire                when_VGAVideoGenerator_l34;
+  wire                when_VGAVideoGenerator_l35;
+  wire                when_VGAVideoGenerator_l39;
+  wire                when_VGAVideoGenerator_l43;
+  wire                when_VGAVideoGenerator_l38;
+  wire                when_VGAVideoGenerator_l42;
 
+  assign _zz_when_VGAVideoGenerator_l35_1 = (~ io_oscillatorData_increments_0[11 : 3]);
+  assign _zz_when_VGAVideoGenerator_l35 = {1'd0, _zz_when_VGAVideoGenerator_l35_1};
+  assign _zz_when_VGAVideoGenerator_l39_1 = (~ io_oscillatorData_increments_1[11 : 3]);
+  assign _zz_when_VGAVideoGenerator_l39 = {1'd0, _zz_when_VGAVideoGenerator_l39_1};
   VGATimingGenerator timing_generator (
     .io_hsync        (timing_generator_io_hsync       ), //o
     .io_vsync        (timing_generator_io_vsync       ), //o
@@ -182,29 +212,50 @@ module VGAVideoGenerator (
   assign io_vga_hsync = timing_generator_io_hsync;
   assign io_vga_vsync = timing_generator_io_vsync;
   always @(*) begin
+    io_vga_r = 2'b00;
     if(timing_generator_io_video_active) begin
-      io_vga_r = timing_generator_io_x_coord[8 : 7];
-    end else begin
-      io_vga_r = 2'b00;
+      if(when_VGAVideoGenerator_l34) begin
+        if(when_VGAVideoGenerator_l35) begin
+          io_vga_r = 2'b11;
+        end
+      end
     end
   end
 
   always @(*) begin
+    io_vga_g = 2'b00;
     if(timing_generator_io_video_active) begin
-      io_vga_g = frame_count[5 : 4];
-    end else begin
-      io_vga_g = 2'b00;
+      if(!when_VGAVideoGenerator_l34) begin
+        if(when_VGAVideoGenerator_l38) begin
+          if(when_VGAVideoGenerator_l39) begin
+            io_vga_g = 2'b11;
+          end
+        end
+      end
     end
   end
 
   always @(*) begin
+    io_vga_b = 2'b00;
     if(timing_generator_io_video_active) begin
-      io_vga_b = frame_count[7 : 6];
-    end else begin
-      io_vga_b = 2'b00;
+      if(!when_VGAVideoGenerator_l34) begin
+        if(!when_VGAVideoGenerator_l38) begin
+          if(when_VGAVideoGenerator_l42) begin
+            if(when_VGAVideoGenerator_l43) begin
+              io_vga_b = 2'b11;
+            end
+          end
+        end
+      end
     end
   end
 
+  assign when_VGAVideoGenerator_l34 = ((timing_generator_io_y_coord < 9'h064) && (io_oscillatorData_increments_0 != 12'h0));
+  assign when_VGAVideoGenerator_l35 = (timing_generator_io_x_coord < _zz_when_VGAVideoGenerator_l35);
+  assign when_VGAVideoGenerator_l39 = (timing_generator_io_x_coord < _zz_when_VGAVideoGenerator_l39);
+  assign when_VGAVideoGenerator_l43 = (timing_generator_io_x_coord < (~ io_oscillatorData_increments_2[11 : 2]));
+  assign when_VGAVideoGenerator_l38 = ((timing_generator_io_y_coord < 9'h0c8) && (io_oscillatorData_increments_1 != 12'h0));
+  assign when_VGAVideoGenerator_l42 = ((timing_generator_io_y_coord < 9'h12c) && (io_oscillatorData_increments_2 != 12'h0));
   always @(posedge clk) begin
     if(timing_generator_io_frame_start) begin
       frame_count <= (frame_count + 8'h01);
@@ -511,6 +562,7 @@ module OscillatorGroup (
   input  wire [11:0]   io_increments_1,
   input  wire [11:0]   io_increments_2,
   input  wire [11:0]   io_increments_3,
+  output wire [3:0]    io_oscillator_outputs,
   output wire          io_oscillator,
   input  wire          clk,
   input  wire          rst_n,
@@ -599,6 +651,8 @@ module OscillatorGroup (
     endcase
   end
 
+  assign io_oscillator_outputs = oscillatorOutputs;
+  assign oscillatorOutputs = {oscillator_7_io_oscillator,{oscillator_6_io_oscillator,{oscillator_5_io_oscillator,oscillator_4_io_oscillator}}};
   assign _zz_sigmaDelta_increment = 3'b000;
   assign _zz_sigmaDelta_increment_1 = 3'b001;
   assign _zz_sigmaDelta_increment_2 = 3'b001;
