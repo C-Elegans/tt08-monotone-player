@@ -18,8 +18,8 @@ resolution = data.ticks_per_beat // args.resolution_divider
 max_time = data.max_tick // resolution
 
 
-notes = [[] for i in range(max_time)]
-for instrument in data.instruments:
+notes = [[0,0,0,0] for i in range(max_time)]
+for instrument_idx, instrument in enumerate(data.instruments):
     prev_end_idx = 0
     for msg in instrument.notes:
         start_idx = msg.start // resolution
@@ -29,15 +29,18 @@ for instrument in data.instruments:
         prev_end_idx = end_idx
         for idx in range(start_idx, end_idx):
             if idx >= len(notes): break
-            if not msg.pitch in notes[idx]:
-                notes[idx].append(msg.pitch)
+            if notes[idx][instrument_idx] == 0:
+                notes[idx][instrument_idx] = msg.pitch
+            elif 0 in notes[idx]:
+                index = notes[idx].index(0)
+                notes[idx][index] = msg.pitch
 
 print(notes[:50])
 
 compiler = NoteCompiler(args.romfile)
 
 compiler.framelength(args.framelength)
-prev_note = []
+prev_note = [0,0,0,0]
 wait_counter = 0
 for note in notes:
     if prev_note != note and wait_counter != 0:
@@ -48,15 +51,12 @@ for note in notes:
         compiler.wait(wait_counter)
         wait_counter = 0
     for osc in range(args.channels):
-        if osc >= len(note) and osc >= len(prev_note):
-            pass
-        elif osc >= len(note) and osc < len(prev_note):
-            print(f'writing rest to {osc}')
-            compiler.note('', osc)
-        elif (osc < len(note) and osc >= len(prev_note)) or \
-             (note[osc] != prev_note[osc]):
-            print(f'writing midi note {note[osc]} to {osc}')
-            compiler.midinote(note[osc], osc)
+        if note[osc] != prev_note[osc]:
+            if note[osc] == 0:
+                compiler.note('', osc)
+            else:
+                compiler.midinote(note[osc], osc)
+                
     wait_counter += 1
             
         

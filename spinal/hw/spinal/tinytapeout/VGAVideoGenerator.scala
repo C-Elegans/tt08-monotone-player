@@ -31,16 +31,19 @@ case class VGAVideoGenerator(oscillatorWidth: Int, numOscillators: Int) extends 
   }
 
   when(timing_generator.io.video_active){
-    when(timing_generator.io.y_coord < 100 && io.oscillatorData.increments(0) =/= 0){
-      when(timing_generator.io.x_coord < ~io.oscillatorData.increments(0)(11 downto 3)){
+    when(timing_generator.io.y_coord < 100 ){
+      when(timing_generator.io.x_coord < ~io.oscillatorData.increments(0)(11 downto 2)
+        && io.oscillatorData.increments(0) =/= 0){
         io.vga.r := 3
       }
-    }.elsewhen(timing_generator.io.y_coord < 200 && io.oscillatorData.increments(1) =/= 0){
-      when(timing_generator.io.x_coord < ~io.oscillatorData.increments(1)(11 downto 3)){
+    }.elsewhen(timing_generator.io.y_coord < 200){
+      when(timing_generator.io.x_coord < ~io.oscillatorData.increments(1)(11 downto 2)
+        && io.oscillatorData.increments(1) =/= 0){
         io.vga.g := 3
       }
-    }.elsewhen(timing_generator.io.y_coord < 300 && io.oscillatorData.increments(2) =/= 0){
-      when(timing_generator.io.x_coord < ~io.oscillatorData.increments(2)(11 downto 2)){
+    }.elsewhen(timing_generator.io.y_coord < 300){
+      when(timing_generator.io.x_coord < ~io.oscillatorData.increments(2)(11 downto 2)
+        && io.oscillatorData.increments(2) =/= 0){
         io.vga.b := 3
       }
     }

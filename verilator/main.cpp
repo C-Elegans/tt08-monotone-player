@@ -8,7 +8,7 @@
 #include <memory>
 
 //#define VCD
-//#define VGA
+#define VGA
 
 int main(int argc, char** argv){
     double clock_frequency = 20e6;
