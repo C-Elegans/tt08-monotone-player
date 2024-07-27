@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.10.2a    git head : a348a60b7e8b6a455c72e1536ec3d74a2ea16935
 // Component : tt_um_monotone_player
-// Git hash  : ba9a1c76a0bde86b63f7b01d93fa517e00d595b5
+// Git hash  : 78b996b66e8f73176bd77fe7fa9969378705adf9
 
 `timescale 1ns/1ps
 
@@ -8,8 +8,8 @@ module tt_um_monotone_player (
   input  wire [7:0]    ui_in,
   output reg  [7:0]    uo_out,
   input  wire [7:0]    uio_in,
-  output wire [7:0]    uio_out,
-  output wire [7:0]    uio_oe,
+  output reg  [7:0]    uio_out,
+  output reg  [7:0]    uio_oe,
   input  wire          ena,
   input  wire          clk,
   input  wire          rst_n
@@ -25,6 +25,16 @@ module tt_um_monotone_player (
   wire       [1:0]    top_1_vga_g;
   wire       [1:0]    top_1_vga_b;
   wire                top_1_osc;
+  function [7:0] zz_uio_oe(input dummy);
+    begin
+      zz_uio_oe = 8'h0;
+      zz_uio_oe[0] = 1'b1;
+      zz_uio_oe[1] = 1'b1;
+      zz_uio_oe[3] = 1'b1;
+      zz_uio_oe[7] = 1'b1;
+    end
+  endfunction
+  wire [7:0] _zz_1;
 
   Top top_1 (
     .spi_ss    (top_1_spi_ss    ), //o
@@ -40,17 +50,29 @@ module tt_um_monotone_player (
     .clk       (clk             ), //i
     .rst_n     (rst_n           )  //i
   );
-  assign uio_oe = 8'h0;
-  assign uio_out = 8'h0;
+  assign _zz_1 = zz_uio_oe(1'b0);
+  always @(*) uio_oe = _zz_1;
   always @(*) begin
-    uo_out = 8'h0;
-    uo_out[0] = top_1_spi_ss[0];
-    uo_out[1] = top_1_spi_sclk;
-    uo_out[2] = top_1_spi_mosi;
-    uo_out[7] = top_1_osc;
+    uio_out = 8'h0;
+    uio_out[0] = top_1_spi_ss[0];
+    uio_out[1] = top_1_spi_sclk;
+    uio_out[3] = top_1_spi_mosi;
+    uio_out[7] = top_1_osc;
   end
 
-  assign top_1_spi_miso = ui_in[0];
+  always @(*) begin
+    uo_out = 8'h0;
+    uo_out[0] = top_1_vga_r[1];
+    uo_out[1] = top_1_vga_g[1];
+    uo_out[2] = top_1_vga_b[1];
+    uo_out[3] = top_1_vga_vsync;
+    uo_out[4] = top_1_vga_r[0];
+    uo_out[5] = top_1_vga_g[0];
+    uo_out[6] = top_1_vga_b[0];
+    uo_out[7] = top_1_vga_hsync;
+  end
+
+  assign top_1_spi_miso = uio_in[2];
 
 endmodule
 

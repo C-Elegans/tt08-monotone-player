@@ -45,13 +45,26 @@ case class TapeoutTop() extends Component {
 
   val top = Top(12)
 
-  io.uo_out(0) := top.io.spi.ss(0)
-  io.uo_out(1) := top.io.spi.sclk
-  io.uo_out(2) := top.io.spi.mosi
-  top.io.spi.miso := io.ui_in(0)
+  io.uio.write(0) := top.io.spi.ss(0)
+  io.uio.write(1) := top.io.spi.sclk
+  io.uio.write(3) := top.io.spi.mosi
+  io.uio.writeEnable(0) := True
+  io.uio.writeEnable(1) := True
+  io.uio.writeEnable(3) := True
+  top.io.spi.miso := io.uio.read(2)
 
 
-  io.uo_out(7) := top.io.osc
+  io.uio.write(7) := top.io.osc
+  io.uio.writeEnable(7) := True
+
+  io.uo_out(0) := top.io.vga.r(1)
+  io.uo_out(1) := top.io.vga.g(1)
+  io.uo_out(2) := top.io.vga.b(1)
+  io.uo_out(3) := top.io.vga.vsync
+  io.uo_out(4) := top.io.vga.r(0)
+  io.uo_out(5) := top.io.vga.g(0)
+  io.uo_out(6) := top.io.vga.b(0)
+  io.uo_out(7) := top.io.vga.hsync
 
 }
 
