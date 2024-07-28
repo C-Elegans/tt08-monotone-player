@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.10.2a    git head : a348a60b7e8b6a455c72e1536ec3d74a2ea16935
 // Component : tt_um_monotone_player
-// Git hash  : 978bef9e3e0d6a698a7fec7f83d1aa60ad8860ee
+// Git hash  : 16d040fbff8c3e1cc0d406a93f9614cda780612d
 
 `timescale 1ns/1ps
 
@@ -97,6 +97,8 @@ module Top (
   wire       [11:0]   oscillatorControl_1_io_oscillatorIncrements_1;
   wire       [11:0]   oscillatorControl_1_io_oscillatorIncrements_2;
   wire       [11:0]   oscillatorControl_1_io_oscillatorIncrements_3;
+  wire                oscillatorControl_1_io_noise_enable;
+  wire                oscillatorControl_1_io_noise_clocken;
   wire                oscillatorControl_1_io_oscillator_en;
   wire       [3:0]    enableArea_oscillatorGroup_io_oscillator_outputs;
   wire                enableArea_oscillatorGroup_io_oscillator;
@@ -123,6 +125,8 @@ module Top (
     .io_oscillatorIncrements_1 (oscillatorControl_1_io_oscillatorIncrements_1[11:0]), //o
     .io_oscillatorIncrements_2 (oscillatorControl_1_io_oscillatorIncrements_2[11:0]), //o
     .io_oscillatorIncrements_3 (oscillatorControl_1_io_oscillatorIncrements_3[11:0]), //o
+    .io_noise_enable           (oscillatorControl_1_io_noise_enable                ), //o
+    .io_noise_clocken          (oscillatorControl_1_io_noise_clocken               ), //o
     .io_oscillator_en          (oscillatorControl_1_io_oscillator_en               ), //o
     .clk                       (clk                                                ), //i
     .rst_n                     (rst_n                                              )  //i
@@ -132,11 +136,13 @@ module Top (
     .io_increments_1           (oscillatorControl_1_io_oscillatorIncrements_1[11:0]  ), //i
     .io_increments_2           (oscillatorControl_1_io_oscillatorIncrements_2[11:0]  ), //i
     .io_increments_3           (oscillatorControl_1_io_oscillatorIncrements_3[11:0]  ), //i
+    .io_noise_enable           (oscillatorControl_1_io_noise_enable                  ), //i
+    .io_noise_clocken          (oscillatorControl_1_io_noise_clocken                 ), //i
     .io_oscillator_outputs     (enableArea_oscillatorGroup_io_oscillator_outputs[3:0]), //o
     .io_oscillator             (enableArea_oscillatorGroup_io_oscillator             ), //o
+    .enableArea_newClockEnable (enableArea_newClockEnable                            ), //i
     .clk                       (clk                                                  ), //i
-    .rst_n                     (rst_n                                                ), //i
-    .enableArea_newClockEnable (enableArea_newClockEnable                            )  //i
+    .rst_n                     (rst_n                                                )  //i
   );
   SpiRom spiRom_1 (
     .io_spi_ss           (spiRom_1_io_spi_ss                          ), //o
@@ -614,24 +620,28 @@ module OscillatorGroup (
   input  wire [11:0]   io_increments_1,
   input  wire [11:0]   io_increments_2,
   input  wire [11:0]   io_increments_3,
+  input  wire          io_noise_enable,
+  input  wire          io_noise_clocken,
   output wire [3:0]    io_oscillator_outputs,
   output wire          io_oscillator,
+  input  wire          enableArea_newClockEnable,
   input  wire          clk,
-  input  wire          rst_n,
-  input  wire          enableArea_newClockEnable
+  input  wire          rst_n
 );
 
   wire                oscillator_4_io_oscillator;
   wire                oscillator_5_io_oscillator;
   wire                oscillator_6_io_oscillator;
   wire                oscillator_7_io_oscillator;
+  wire                noiseEnableArea_noiseGenerator_io_oscillator;
   wire       [2:0]    _zz_sigmaDelta_increment_8;
   reg        [2:0]    _zz_sigmaDelta_increment_9;
   wire       [2:0]    _zz_sigmaDelta_increment_10;
   reg        [2:0]    _zz_sigmaDelta_increment_11;
   wire       [2:0]    _zz_sigmaDelta_increment_12;
-  wire       [0:0]    _zz_sigmaDelta_increment_13;
-  wire       [3:0]    oscillatorOutputs;
+  wire       [1:0]    _zz_sigmaDelta_increment_13;
+  wire       [4:0]    oscillatorOutputs;
+  wire                noiseEnableArea_newClockEnable;
   wire       [2:0]    _zz_sigmaDelta_increment;
   wire       [2:0]    _zz_sigmaDelta_increment_1;
   wire       [2:0]    _zz_sigmaDelta_increment_2;
@@ -646,9 +656,9 @@ module OscillatorGroup (
   reg                 _zz_io_oscillator;
 
   assign _zz_sigmaDelta_increment_8 = (_zz_sigmaDelta_increment_9 + _zz_sigmaDelta_increment_11);
-  assign _zz_sigmaDelta_increment_13 = oscillator_7_io_oscillator;
-  assign _zz_sigmaDelta_increment_12 = {2'd0, _zz_sigmaDelta_increment_13};
-  assign _zz_sigmaDelta_increment_10 = {oscillator_6_io_oscillator,{oscillator_5_io_oscillator,oscillator_4_io_oscillator}};
+  assign _zz_sigmaDelta_increment_13 = {oscillatorOutputs[4],oscillatorOutputs[3]};
+  assign _zz_sigmaDelta_increment_12 = {1'd0, _zz_sigmaDelta_increment_13};
+  assign _zz_sigmaDelta_increment_10 = {oscillatorOutputs[2],{oscillatorOutputs[1],oscillatorOutputs[0]}};
   Oscillator oscillator_4 (
     .io_increment              (io_increments_0[11:0]     ), //i
     .io_oscillator             (oscillator_4_io_oscillator), //o
@@ -677,6 +687,13 @@ module OscillatorGroup (
     .rst_n                     (rst_n                     ), //i
     .enableArea_newClockEnable (enableArea_newClockEnable )  //i
   );
+  NoiseGenerator noiseEnableArea_noiseGenerator (
+    .io_enable                      (io_noise_enable                             ), //i
+    .io_oscillator                  (noiseEnableArea_noiseGenerator_io_oscillator), //o
+    .clk                            (clk                                         ), //i
+    .rst_n                          (rst_n                                       ), //i
+    .noiseEnableArea_newClockEnable (noiseEnableArea_newClockEnable              )  //i
+  );
   always @(*) begin
     case(_zz_sigmaDelta_increment_10)
       3'b000 : _zz_sigmaDelta_increment_9 = _zz_sigmaDelta_increment;
@@ -703,8 +720,9 @@ module OscillatorGroup (
     endcase
   end
 
-  assign io_oscillator_outputs = oscillatorOutputs;
-  assign oscillatorOutputs = {oscillator_7_io_oscillator,{oscillator_6_io_oscillator,{oscillator_5_io_oscillator,oscillator_4_io_oscillator}}};
+  assign io_oscillator_outputs = oscillatorOutputs[3 : 0];
+  assign noiseEnableArea_newClockEnable = (enableArea_newClockEnable && io_noise_clocken);
+  assign oscillatorOutputs = {{oscillator_7_io_oscillator,{oscillator_6_io_oscillator,{oscillator_5_io_oscillator,oscillator_4_io_oscillator}}},noiseEnableArea_noiseGenerator_io_oscillator};
   assign _zz_sigmaDelta_increment = 3'b000;
   assign _zz_sigmaDelta_increment_1 = 3'b001;
   assign _zz_sigmaDelta_increment_2 = 3'b001;
@@ -745,6 +763,8 @@ module OscillatorControl (
   output wire [11:0]   io_oscillatorIncrements_1,
   output wire [11:0]   io_oscillatorIncrements_2,
   output wire [11:0]   io_oscillatorIncrements_3,
+  output wire          io_noise_enable,
+  output wire          io_noise_clocken,
   output wire          io_oscillator_en,
   input  wire          clk,
   input  wire          rst_n
@@ -770,12 +790,13 @@ module OscillatorControl (
   wire                oscillatorPrescaler_willOverflow;
   reg        [15:0]   frameLength;
   reg        [15:0]   count;
-  wire                when_OscillatorControl_l25;
+  wire                when_OscillatorControl_l27;
   wire                frameStart;
   reg        [11:0]   oscillatorControl_0;
   reg        [11:0]   oscillatorControl_1;
   reg        [11:0]   oscillatorControl_2;
   reg        [11:0]   oscillatorControl_3;
+  reg                 noiseEnable;
   reg        [1:0]    oscillatorSel;
   reg        [3:0]    tempData;
   wire                controlFsm_wantExit;
@@ -783,9 +804,9 @@ module OscillatorControl (
   wire                controlFsm_wantKill;
   reg        [2:0]    controlFsm_stateReg;
   reg        [2:0]    controlFsm_stateNext;
-  wire       [3:0]    switch_OscillatorControl_l65;
+  wire       [3:0]    switch_OscillatorControl_l71;
   wire       [3:0]    _zz_frameLength;
-  wire                when_OscillatorControl_l104;
+  wire                when_OscillatorControl_l109;
   wire       [3:0]    _zz_1;
   wire       [11:0]   _zz_oscillatorControl_0;
   `ifndef SYNTHESIS
@@ -844,7 +865,7 @@ module OscillatorControl (
   end
 
   assign io_oscillator_en = oscillatorPrescaler_willOverflow;
-  assign when_OscillatorControl_l25 = (count == 16'h0);
+  assign when_OscillatorControl_l27 = (count == 16'h0);
   assign frameStart = ((count == 16'h0) && oscillatorPrescaler_willOverflow);
   assign io_readReq_payload = pc;
   always @(*) begin
@@ -876,6 +897,8 @@ module OscillatorControl (
   assign io_oscillatorIncrements_1 = oscillatorControl_1;
   assign io_oscillatorIncrements_2 = oscillatorControl_2;
   assign io_oscillatorIncrements_3 = oscillatorControl_3;
+  assign io_noise_enable = noiseEnable;
+  assign io_noise_clocken = (count[7 : 0] == 8'h0);
   assign controlFsm_wantExit = 1'b0;
   always @(*) begin
     controlFsm_wantStart = 1'b0;
@@ -911,18 +934,15 @@ module OscillatorControl (
       end
       controlFsm_enumDef_decodeCmd : begin
         if(io_readResp_valid) begin
-          case(switch_OscillatorControl_l65)
+          case(switch_OscillatorControl_l71)
             4'b0000 : begin
               controlFsm_stateNext = controlFsm_enumDef_fetchCmd;
             end
             4'b0001 : begin
-              controlFsm_stateNext = controlFsm_enumDef_decodeCmd_waitFrameEnd;
-            end
-            4'b0010 : begin
-              controlFsm_stateNext = controlFsm_enumDef_readPC;
-            end
-            4'b0011 : begin
               controlFsm_stateNext = controlFsm_enumDef_fetchCmd;
+            end
+            4'b0010, 4'b0011 : begin
+              controlFsm_stateNext = controlFsm_enumDef_decodeCmd_waitFrameEnd;
             end
             4'b1100 : begin
               controlFsm_stateNext = controlFsm_enumDef_setOscillatorRead;
@@ -943,7 +963,7 @@ module OscillatorControl (
       end
       controlFsm_enumDef_decodeCmd_waitFrameEnd : begin
         if(frameStart) begin
-          if(!when_OscillatorControl_l104) begin
+          if(!when_OscillatorControl_l109) begin
             controlFsm_stateNext = controlFsm_enumDef_fetchCmd;
           end
         end
@@ -979,9 +999,9 @@ module OscillatorControl (
     end
   end
 
-  assign switch_OscillatorControl_l65 = io_readResp_payload[7 : 4];
+  assign switch_OscillatorControl_l71 = io_readResp_payload[7 : 4];
   assign _zz_frameLength = io_readResp_payload[3 : 0];
-  assign when_OscillatorControl_l104 = (tempData != 4'b0000);
+  assign when_OscillatorControl_l109 = (tempData != 4'b0000);
   assign _zz_1 = ({3'd0,1'b1} <<< oscillatorSel);
   assign _zz_oscillatorControl_0 = {tempData,io_readResp_payload};
   always @(posedge clk or negedge rst_n) begin
@@ -990,11 +1010,12 @@ module OscillatorControl (
       oscillatorPrescaler_value <= 5'h0;
       frameLength <= 16'hffff;
       count <= 16'h0;
+      noiseEnable <= 1'b0;
       controlFsm_stateReg <= controlFsm_enumDef_BOOT;
     end else begin
       oscillatorPrescaler_value <= oscillatorPrescaler_valueNext;
       if(oscillatorPrescaler_willOverflow) begin
-        if(when_OscillatorControl_l25) begin
+        if(when_OscillatorControl_l27) begin
           count <= frameLength;
         end else begin
           count <= (count - 16'h0001);
@@ -1009,8 +1030,8 @@ module OscillatorControl (
         end
         controlFsm_enumDef_decodeCmd : begin
           if(io_readResp_valid) begin
-            case(switch_OscillatorControl_l65)
-              4'b0011 : begin
+            case(switch_OscillatorControl_l71)
+              4'b0001 : begin
                 frameLength[15 : 12] <= _zz_frameLength;
               end
               default : begin
@@ -1019,6 +1040,7 @@ module OscillatorControl (
           end
         end
         controlFsm_enumDef_decodeCmd_waitFrameEnd : begin
+          noiseEnable <= oscillatorSel[0];
         end
         controlFsm_enumDef_setOscillatorRead : begin
           if(io_readReq_ready) begin
@@ -1050,7 +1072,10 @@ module OscillatorControl (
       controlFsm_enumDef_decodeCmd : begin
         if(io_readResp_valid) begin
           tempData <= _zz_frameLength;
-          case(switch_OscillatorControl_l65)
+          case(switch_OscillatorControl_l71)
+            4'b0010, 4'b0011 : begin
+              oscillatorSel <= io_readResp_payload[5 : 4];
+            end
             4'b1100 : begin
               oscillatorSel <= 2'b00;
             end
@@ -1070,7 +1095,7 @@ module OscillatorControl (
       end
       controlFsm_enumDef_decodeCmd_waitFrameEnd : begin
         if(frameStart) begin
-          if(when_OscillatorControl_l104) begin
+          if(when_OscillatorControl_l109) begin
             tempData <= (tempData - 4'b0001);
           end
         end
@@ -1889,6 +1914,38 @@ module SpiMaster (
     endcase
     if(when_StateMachine_l253) begin
       bitCount <= 3'b111;
+    end
+  end
+
+
+endmodule
+
+module NoiseGenerator (
+  input  wire          io_enable,
+  output reg           io_oscillator,
+  input  wire          clk,
+  input  wire          rst_n,
+  input  wire          noiseEnableArea_newClockEnable
+);
+
+  reg        [11:0]   shiftRegister;
+
+  always @(*) begin
+    io_oscillator = 1'b0;
+    if(io_enable) begin
+      io_oscillator = shiftRegister[11];
+    end
+  end
+
+  always @(posedge clk or negedge rst_n) begin
+    if(!rst_n) begin
+      shiftRegister <= 12'h001;
+    end else begin
+      if(noiseEnableArea_newClockEnable) begin
+        if(io_enable) begin
+          shiftRegister <= {shiftRegister[10 : 0],((shiftRegister[11] ^ shiftRegister[10]) ^ shiftRegister[3])};
+        end
+      end
     end
   end
 

@@ -10,6 +10,8 @@ case class OscillatorControl(numOscillators: Int) extends Component {
     val readReq = master(Stream(UInt(16 bits)))
     val readResp = slave(Flow(Bits(8 bits)))
     val oscillatorIncrements = out(Vec(UInt(12 bits), numOscillators))
+    val noise_enable = out(Bool)
+    val noise_clocken = out(Bool())
     val oscillator_en = out(Bool())
   }
 
@@ -37,6 +39,10 @@ case class OscillatorControl(numOscillators: Int) extends Component {
 
   val oscillatorControl = Reg(Vec(UInt(12 bits), numOscillators))
   io.oscillatorIncrements := oscillatorControl
+
+  val noiseEnable = Reg(Bool()) init(False)
+  io.noise_enable := noiseEnable
+  io.noise_clocken := count(7 downto 0) === 0
 
 
 
@@ -67,14 +73,12 @@ case class OscillatorControl(numOscillators: Int) extends Component {
               goto(fetchCmd)
             }
             is(1) {
-              goto(waitFrameEnd)
-            }
-            is(2) {
-              goto(readPC)
-            }
-            is(3) {
               frameLength(15 downto 12) := data.asUInt
               goto(fetchCmd)
+            }
+            is(2,3) {
+              oscillatorSel := io.readResp.payload(5 downto 4).asUInt
+              goto(waitFrameEnd)
             }
             is(0xc) {
               oscillatorSel := 0
@@ -100,6 +104,7 @@ case class OscillatorControl(numOscillators: Int) extends Component {
       }
       val waitFrameEnd : State = new State {
         whenIsActive {
+          noiseEnable := oscillatorSel(0)
           when(frameStart){
             when(tempData =/= 0){
               tempData := tempData - 1

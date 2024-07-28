@@ -9,6 +9,8 @@ parser.add_argument('romfile')
 parser.add_argument('--framelength', '-f', type=int, default=15, help='The frame length to set in the config')
 parser.add_argument('--resolution-divider', '-d', type=int, default=4, help='The minimum fraction of a beat')
 parser.add_argument('--channels', '-c', type=int, default=3, help='The number of channels to output to the rom')
+parser.add_argument('--percussion-track-index', type=int, default=5, help='The index of the percussion track')
+parser.add_argument('--percussion-enable','-p', action='store_true', help='Enables percussion')
 
 args = parser.parse_args()
 
@@ -19,6 +21,7 @@ max_time = data.max_tick // resolution
 
 
 notes = [[0,0,0,0] for i in range(max_time)]
+percussion_track = [0 for i in range(max_time)]
 for instrument_idx, instrument in enumerate(data.instruments):
     prev_end_idx = 0
     for msg in instrument.notes:
@@ -29,26 +32,34 @@ for instrument_idx, instrument in enumerate(data.instruments):
         prev_end_idx = end_idx
         for idx in range(start_idx, end_idx):
             if idx >= len(notes): break
-            if notes[idx][instrument_idx] == 0:
+
+            if instrument_idx == args.percussion_track_index:
+                percussion_track[idx] = 1 if args.percussion_enable else 0
+            elif instrument_idx >= 4:
+                break
+            elif notes[idx][instrument_idx] == 0:
                 notes[idx][instrument_idx] = msg.pitch
             elif 0 in notes[idx]:
                 index = notes[idx].index(0)
                 notes[idx][index] = msg.pitch
 
 print(notes[:50])
+print(percussion_track[:100])
 
 compiler = NoteCompiler(args.romfile)
+for i in range(8):
+    compiler.nop()
 
 compiler.framelength(args.framelength)
 prev_note = [0,0,0,0]
+prev_percussion = 0
 wait_counter = 0
-for note in notes:
-    if prev_note != note and wait_counter != 0:
-        print(f'waiting {wait_counter}')
+for note, percussion in zip(notes, percussion_track):
+    if (prev_note != note or prev_percussion != percussion) and wait_counter != 0:
         while wait_counter > 16:
-            compiler.wait(16)
+            compiler.wait(16, prev_percussion)
             wait_counter -= 16
-        compiler.wait(wait_counter)
+        compiler.wait(wait_counter, prev_percussion)
         wait_counter = 0
     for osc in range(args.channels):
         if note[osc] != prev_note[osc]:
@@ -61,6 +72,7 @@ for note in notes:
             
         
     prev_note = note
+    prev_percussion = percussion
 
 for osc in range(args.channels):
     compiler.note('', osc)

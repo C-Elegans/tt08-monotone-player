@@ -87,6 +87,8 @@ case class Top(width: Int) extends Component {
   oscillatorControl.io.readReq >> spiRom.io.readReq
   oscillatorControl.io.readResp << spiRom.io.readResp
   enableArea.oscillatorGroup.io.increments := oscillatorControl.io.oscillatorIncrements
+  enableArea.oscillatorGroup.io.noise_enable := oscillatorControl.io.noise_enable
+  enableArea.oscillatorGroup.io.noise_clocken := oscillatorControl.io.noise_clocken
   io.osc := enableArea.oscillatorGroup.io.oscillator
 
 

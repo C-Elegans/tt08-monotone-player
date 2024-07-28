@@ -75,16 +75,14 @@ class NoteCompiler:
         freq = midi_note_frequency(noteid)
         self.writeNote(freq, oscillator)
 
-    def wait(self, numFrames=1):
-        cmd = 0x1 << 4 | (numFrames-1 & 0xF)
+    def wait(self, numFrames=1, percussionEn=False):
+        cmd = 0x2 << 4 | (percussionEn << 4) | (numFrames-1 & 0xF)
         self.rom.write(struct.pack('B', cmd))
 
-    def jump(self, addr):
-        cmd1 = 0x2 << 4 | ((addr >> 12) & 0xF)
-        cmd2 = ((addr >> 4) & 0xFF)
-        self.rom.write(struct.pack('BB', cmd1, cmd2))
-
     def framelength(self, count):
-        cmd1 = 0x3 << 4 | (count & 0xf)
+        cmd1 = 0x1 << 4 | (count & 0xf)
         self.rom.write(struct.pack('B', cmd1))
+
+    def nop(self):
+        self.rom.write(struct.pack('B', 0))
 
