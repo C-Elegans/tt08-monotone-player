@@ -61,6 +61,10 @@ for note in notes:
             
         
     prev_note = note
+
+for osc in range(args.channels):
+    compiler.note('', osc)
+compiler.wait(16)
                 
 
 

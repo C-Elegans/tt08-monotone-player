@@ -18,6 +18,7 @@ public:
     std::vector<uint8_t> memory;
     uint8_t dataIn;
     uint8_t dataOut;
+    bool overflow = false;
     uint16_t address;
     SpiState state = SpiState::Command;
     uint8_t bitCount;
@@ -45,6 +46,9 @@ public:
 	    state = SpiState::Addr2;
 	    dataOut = memory[address];
 	    printf("Reading from address 0x%04x -> %02x\n", address, dataOut);
+	    if(address == 0xffff){
+		overflow = true;
+	    }
 	    break;
 	}
 	case SpiState::Data: {
