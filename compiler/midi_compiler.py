@@ -17,7 +17,7 @@ args = parser.parse_args()
 data = MidiFile(args.midifile)
 
 resolution = data.ticks_per_beat // args.resolution_divider
-max_time = data.max_tick // resolution
+max_time = (data.max_tick // resolution) + 1
 
 
 notes = [[0,0,0,0] for i in range(max_time)]
@@ -43,8 +43,6 @@ for instrument_idx, instrument in enumerate(data.instruments):
                 index = notes[idx].index(0)
                 notes[idx][index] = msg.pitch
 
-print(notes[:50])
-print(percussion_track[:100])
 
 compiler = NoteCompiler(args.romfile)
 for i in range(8):
