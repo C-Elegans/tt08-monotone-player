@@ -1,41 +1,100 @@
 ![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
 
-# Tiny Tapeout Verilog Project Template
+# What is it?
 
-- [Read the documentation for project](docs/info.md)
+# Pinout
 
-## What is Tiny Tapeout?
+| Pin # | Input | Output (VGA PMOD) | Bidirectional I/O |
+|:------|:------|:------------------|:------------------|
+| 0     | X     | VGA - R1          | Out: SPI CS_n     |
+| 1     | X     | VGA - G1          | Out: SPI MOSI     |
+| 2     | X     | VGA - B1          | In:  SPI MISO     |
+| 3     | X     | VGA - VSync       | Out: SPI SCK      |
+| 4     | X     | VGA - R0          |                   |
+| 5     | X     | VGA - G0          |                   |
+| 6     | X     | VGA - B0          |                   |
+| 7     | X     | VGA - HSync       | Out: PWM Audio    |
 
-Tiny Tapeout is an educational project that aims to make it easier and cheaper than ever to get your digital and analog designs manufactured on a real chip.
+# How it works #
 
-To learn more and get started, visit https://tinytapeout.com.
+## Audio ##
 
-## Set up your Verilog project
+The audio system consists of a 4 voice synthesizer controlled by a
+command processor. The command processor reads a stream of commands
+from SPI RAM/ROM and uses those commands to control the voices of the
+synthesizer.
 
-1. Add your Verilog files to the `src` folder.
-2. Edit the [info.yaml](info.yaml) and update information about your project, paying special attention to the `source_files` and `top_module` properties. If you are upgrading an existing Tiny Tapeout project, check out our [online info.yaml migration tool](https://tinytapeout.github.io/tt-yaml-upgrade-tool/).
-3. Edit [docs/info.md](docs/info.md) and add a description of your project.
-4. Adapt the testbench to your design. See [test/README.md](test/README.md) for more information.
+Timing:
 
-The GitHub action will automatically build the ASIC files using [OpenLane](https://www.zerotoasiccourse.com/terminology/openlane/).
+In addition to the clock, the audio system uses two other timebases,
+the oscillator clock and the frame. The oscillator voices operate on a
+prescaled system clock with frequency f_sysclk/32. This was done to
+give enough frequency resolution to the oscillators while having a
+high enough PWM frequency to not be audible.
 
-## Enable GitHub actions to build the results page
+The command processor has a command to delay for a number of "frames"
+before moving to the next command, this is used to set the timing of
+note changes and rests. The length of a frame is controlled by the
+Frame Control Register, part of which is writable by the command
+processor. The frame control register is as follows:
 
-- [Enabling GitHub Pages](https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part)
+| 15 | 14 | 13 | 12 | 11 | 10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+|:---|:---|:---|:---|:---|:---|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|
+|<td colspan=4> Writable | 1  | 1  | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1  |
 
-## Resources
+Thus a frame is between 2^12 and 2^16 ticks of the PWM prescaled clock.
 
-- [FAQ](https://tinytapeout.com/faq/)
-- [Digital design lessons](https://tinytapeout.com/digital_design/)
-- [Learn how semiconductors work](https://tinytapeout.com/siliwiz/)
-- [Join the community](https://tinytapeout.com/discord)
-- [Build your design locally](https://www.tinytapeout.com/guides/local-hardening/)
 
-## What next?
+Command processor:
 
-- [Submit your design to the next shuttle](https://app.tinytapeout.com/).
-- Edit [this README](README.md) and explain your design, how it works, and how to test it.
-- Share your project on your social network of choice:
-  - LinkedIn [#tinytapeout](https://www.linkedin.com/search/results/content/?keywords=%23tinytapeout) [@TinyTapeout](https://www.linkedin.com/company/100708654/)
-  - Mastodon [#tinytapeout](https://chaos.social/tags/tinytapeout) [@matthewvenn](https://chaos.social/@matthewvenn)
-  - X (formerly Twitter) [#tinytapeout](https://twitter.com/hashtag/tinytapeout) [@tinytapeout](https://twitter.com/tinytapeout)
+### Nop ###
+
+| 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+|:--|:--|:--|:--|:--|:--|:--|:--|
+| 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+
+This command does nothing, the command processor just fetches the next command
+
+### Set Framelength ###
+
+| 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+|:--|:--|:--|:--|:--|:--|:--|:--|
+| 0 | 0 | 0 | 1 <td colspan=4> Framelength
+
+This command writes to the upper bits of the framelength control register with the bottom 4 bits of the command. The framelength control register controls how long a "frame" is:
+
+Framelength Control(15 downto 12) := Command(3 downto 0)
+
+### Wait for Frame End ###
+
+| 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+|:--|:--|:--|:--|:--|:--|:--|:--|
+| 0 | 0 | 1 | P <td colspan=4> Num Frames 
+
+This command waits for `Num Frames` frames before executing another
+command. Additionally, the `P` bit of the command controls whether the
+noise generator voice is enabled
+
+### Oscillator Set ###
+
+| 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+|:--|:--|:--|:--|:--|:--|:--|:--|
+| 1 | 1 | <td colspan = 2> Oscillator period(12 downto 8) <td colspan = 4> Oscillator period(12 downto 8)Oscillator Index |
+|<td colspan=8> Oscillator period(7 downto 0)|
+(This is a two byte command)
+
+This command writes to the oscillator period register selected by Oscillator Index.
+
+
+## Oscillators and DAC ##
+
+The system contains 4 square wave oscillators and one noise generator,
+connected to the audio output with a delta sigma DAC.
+
+Each oscillator contains a 12 bit oscillator period register and a 12 bit count register. The oscillator increments its count register every prescaler clock tick. When the oscillator count register equals the period register, the oscillator toggles its output and resets its count register.
+The frequency of the oscillator therefore is f_sysclk / (divider * 2**7)
+
+The noise generator consists of a 12 bit LFSR and an enable bit. When enabled, the noise generator steps the LFSR every 256 prescaler clock ticks.
+
+The DAC consists of a small counter which counts up by the number of set bits among the 4 oscillator outputs and the noise generator every prescaler clock tick. The output of the DAC is taken from the carry out of this counter. 
+
