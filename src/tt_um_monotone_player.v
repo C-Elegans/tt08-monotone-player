@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.10.2a    git head : a348a60b7e8b6a455c72e1536ec3d74a2ea16935
 // Component : tt_um_monotone_player
-// Git hash  : 16d040fbff8c3e1cc0d406a93f9614cda780612d
+// Git hash  : cf01085adad830c6c574592ad70e74e8243b592d
 
 `timescale 1ns/1ps
 
@@ -210,32 +210,45 @@ module VGAVideoGenerator (
   wire                timing_generator_io_line_start;
   wire       [9:0]    timing_generator_io_x_coord;
   wire       [8:0]    timing_generator_io_y_coord;
-  wire       [9:0]    _zz_when_VGAVideoGenerator_l36;
-  wire       [8:0]    _zz_when_VGAVideoGenerator_l36_1;
-  wire       [9:0]    _zz_when_VGAVideoGenerator_l41;
-  wire       [8:0]    _zz_when_VGAVideoGenerator_l41_1;
-  wire       [9:0]    _zz_when_VGAVideoGenerator_l46;
-  wire       [8:0]    _zz_when_VGAVideoGenerator_l46_1;
-  wire       [9:0]    _zz_when_VGAVideoGenerator_l51;
-  wire       [8:0]    _zz_when_VGAVideoGenerator_l51_1;
+  wire       [9:0]    _zz_when_VGAVideoGenerator_l55;
+  wire       [9:0]    _zz_when_VGAVideoGenerator_l55_1;
+  wire       [9:0]    _zz_when_VGAVideoGenerator_l58;
+  wire       [9:0]    _zz_when_VGAVideoGenerator_l58_1;
+  wire       [9:0]    _zz_when_VGAVideoGenerator_l61;
+  wire       [9:0]    _zz_when_VGAVideoGenerator_l61_1;
+  wire       [9:0]    _zz_when_VGAVideoGenerator_l64;
   reg        [7:0]    frame_count;
-  wire                when_VGAVideoGenerator_l34;
+  wire                _zz_when_VGAVideoGenerator_l36;
+  reg        [4:0]    channelCounts_0;
+  reg                 _zz_when_VGAVideoGenerator_l36_1;
   wire                when_VGAVideoGenerator_l36;
-  wire                when_VGAVideoGenerator_l41;
+  wire                _zz_when_VGAVideoGenerator_l36_2;
+  reg        [4:0]    channelCounts_1;
+  reg                 _zz_when_VGAVideoGenerator_l36_3;
+  wire                when_VGAVideoGenerator_l36_1;
+  wire                _zz_when_VGAVideoGenerator_l36_4;
+  reg        [4:0]    channelCounts_2;
+  reg                 _zz_when_VGAVideoGenerator_l36_5;
+  wire                when_VGAVideoGenerator_l36_2;
+  wire                _zz_when_VGAVideoGenerator_l36_6;
+  reg        [4:0]    channelCounts_3;
+  reg                 _zz_when_VGAVideoGenerator_l36_7;
+  wire                when_VGAVideoGenerator_l36_3;
+  reg        [8:0]    chAllCount;
+  reg                 io_oscillatorData_combined_regNext;
   wire                when_VGAVideoGenerator_l46;
-  wire                when_VGAVideoGenerator_l51;
-  wire                when_VGAVideoGenerator_l39;
-  wire                when_VGAVideoGenerator_l44;
-  wire                when_VGAVideoGenerator_l49;
+  wire                when_VGAVideoGenerator_l55;
+  wire                when_VGAVideoGenerator_l58;
+  wire                when_VGAVideoGenerator_l61;
+  wire                when_VGAVideoGenerator_l64;
 
-  assign _zz_when_VGAVideoGenerator_l36_1 = (~ io_oscillatorData_increments_0[11 : 3]);
-  assign _zz_when_VGAVideoGenerator_l36 = {1'd0, _zz_when_VGAVideoGenerator_l36_1};
-  assign _zz_when_VGAVideoGenerator_l41_1 = (~ io_oscillatorData_increments_1[11 : 3]);
-  assign _zz_when_VGAVideoGenerator_l41 = {1'd0, _zz_when_VGAVideoGenerator_l41_1};
-  assign _zz_when_VGAVideoGenerator_l46_1 = (~ io_oscillatorData_increments_2[11 : 3]);
-  assign _zz_when_VGAVideoGenerator_l46 = {1'd0, _zz_when_VGAVideoGenerator_l46_1};
-  assign _zz_when_VGAVideoGenerator_l51_1 = (~ io_oscillatorData_increments_3[11 : 3]);
-  assign _zz_when_VGAVideoGenerator_l51 = {1'd0, _zz_when_VGAVideoGenerator_l51_1};
+  assign _zz_when_VGAVideoGenerator_l55 = (timing_generator_io_x_coord / 6'h20);
+  assign _zz_when_VGAVideoGenerator_l55_1 = {5'd0, channelCounts_1};
+  assign _zz_when_VGAVideoGenerator_l58 = (timing_generator_io_x_coord / 6'h20);
+  assign _zz_when_VGAVideoGenerator_l58_1 = {5'd0, channelCounts_2};
+  assign _zz_when_VGAVideoGenerator_l61 = (timing_generator_io_x_coord / 6'h20);
+  assign _zz_when_VGAVideoGenerator_l61_1 = {5'd0, channelCounts_3};
+  assign _zz_when_VGAVideoGenerator_l64 = {1'd0, chAllCount};
   VGATimingGenerator timing_generator (
     .io_hsync        (timing_generator_io_hsync       ), //o
     .io_vsync        (timing_generator_io_vsync       ), //o
@@ -252,20 +265,11 @@ module VGAVideoGenerator (
   always @(*) begin
     io_vga_r = 2'b00;
     if(timing_generator_io_video_active) begin
-      if(when_VGAVideoGenerator_l34) begin
-        if(when_VGAVideoGenerator_l36) begin
-          io_vga_r = 2'b11;
-        end
-      end else begin
-        if(!when_VGAVideoGenerator_l39) begin
-          if(!when_VGAVideoGenerator_l44) begin
-            if(when_VGAVideoGenerator_l49) begin
-              if(when_VGAVideoGenerator_l51) begin
-                io_vga_r = 2'b11;
-              end
-            end
-          end
-        end
+      if(when_VGAVideoGenerator_l55) begin
+        io_vga_r = 2'b11;
+      end
+      if(when_VGAVideoGenerator_l64) begin
+        io_vga_r = 2'b11;
       end
     end
   end
@@ -273,20 +277,11 @@ module VGAVideoGenerator (
   always @(*) begin
     io_vga_g = 2'b00;
     if(timing_generator_io_video_active) begin
-      if(!when_VGAVideoGenerator_l34) begin
-        if(when_VGAVideoGenerator_l39) begin
-          if(when_VGAVideoGenerator_l41) begin
-            io_vga_g = 2'b11;
-          end
-        end else begin
-          if(!when_VGAVideoGenerator_l44) begin
-            if(when_VGAVideoGenerator_l49) begin
-              if(when_VGAVideoGenerator_l51) begin
-                io_vga_g = 2'b11;
-              end
-            end
-          end
-        end
+      if(when_VGAVideoGenerator_l58) begin
+        io_vga_g = 2'b11;
+      end
+      if(when_VGAVideoGenerator_l64) begin
+        io_vga_g = 2'b11;
       end
     end
   end
@@ -294,29 +289,66 @@ module VGAVideoGenerator (
   always @(*) begin
     io_vga_b = 2'b00;
     if(timing_generator_io_video_active) begin
-      if(!when_VGAVideoGenerator_l34) begin
-        if(!when_VGAVideoGenerator_l39) begin
-          if(when_VGAVideoGenerator_l44) begin
-            if(when_VGAVideoGenerator_l46) begin
-              io_vga_b = 2'b11;
-            end
-          end
-        end
+      if(when_VGAVideoGenerator_l61) begin
+        io_vga_b = 2'b11;
+      end
+      if(when_VGAVideoGenerator_l64) begin
+        io_vga_b = 2'b11;
       end
     end
   end
 
-  assign when_VGAVideoGenerator_l34 = (timing_generator_io_y_coord < 9'h064);
-  assign when_VGAVideoGenerator_l36 = ((timing_generator_io_x_coord < _zz_when_VGAVideoGenerator_l36) && (io_oscillatorData_increments_0 != 12'h0));
-  assign when_VGAVideoGenerator_l41 = ((timing_generator_io_x_coord < _zz_when_VGAVideoGenerator_l41) && (io_oscillatorData_increments_1 != 12'h0));
-  assign when_VGAVideoGenerator_l46 = ((timing_generator_io_x_coord < _zz_when_VGAVideoGenerator_l46) && (io_oscillatorData_increments_2 != 12'h0));
-  assign when_VGAVideoGenerator_l51 = ((timing_generator_io_x_coord < _zz_when_VGAVideoGenerator_l51) && (io_oscillatorData_increments_3 != 12'h0));
-  assign when_VGAVideoGenerator_l39 = (timing_generator_io_y_coord < 9'h0c8);
-  assign when_VGAVideoGenerator_l44 = (timing_generator_io_y_coord < 9'h12c);
-  assign when_VGAVideoGenerator_l49 = (timing_generator_io_y_coord < 9'h190);
+  assign _zz_when_VGAVideoGenerator_l36 = io_oscillatorData_outputs[0];
+  assign when_VGAVideoGenerator_l36 = (_zz_when_VGAVideoGenerator_l36 != _zz_when_VGAVideoGenerator_l36_1);
+  assign _zz_when_VGAVideoGenerator_l36_2 = io_oscillatorData_outputs[1];
+  assign when_VGAVideoGenerator_l36_1 = (_zz_when_VGAVideoGenerator_l36_2 != _zz_when_VGAVideoGenerator_l36_3);
+  assign _zz_when_VGAVideoGenerator_l36_4 = io_oscillatorData_outputs[2];
+  assign when_VGAVideoGenerator_l36_2 = (_zz_when_VGAVideoGenerator_l36_4 != _zz_when_VGAVideoGenerator_l36_5);
+  assign _zz_when_VGAVideoGenerator_l36_6 = io_oscillatorData_outputs[3];
+  assign when_VGAVideoGenerator_l36_3 = (_zz_when_VGAVideoGenerator_l36_6 != _zz_when_VGAVideoGenerator_l36_7);
+  assign when_VGAVideoGenerator_l46 = (io_oscillatorData_combined != io_oscillatorData_combined_regNext);
+  assign when_VGAVideoGenerator_l55 = (_zz_when_VGAVideoGenerator_l55 < _zz_when_VGAVideoGenerator_l55_1);
+  assign when_VGAVideoGenerator_l58 = (_zz_when_VGAVideoGenerator_l58 < _zz_when_VGAVideoGenerator_l58_1);
+  assign when_VGAVideoGenerator_l61 = (_zz_when_VGAVideoGenerator_l61 < _zz_when_VGAVideoGenerator_l61_1);
+  assign when_VGAVideoGenerator_l64 = (timing_generator_io_x_coord < _zz_when_VGAVideoGenerator_l64);
   always @(posedge clk) begin
     if(timing_generator_io_frame_start) begin
       frame_count <= (frame_count + 8'h01);
+    end
+    _zz_when_VGAVideoGenerator_l36_1 <= _zz_when_VGAVideoGenerator_l36;
+    if(when_VGAVideoGenerator_l36) begin
+      channelCounts_0 <= (channelCounts_0 + 5'h01);
+    end
+    if(timing_generator_io_frame_start) begin
+      channelCounts_0 <= 5'h0;
+    end
+    _zz_when_VGAVideoGenerator_l36_3 <= _zz_when_VGAVideoGenerator_l36_2;
+    if(when_VGAVideoGenerator_l36_1) begin
+      channelCounts_1 <= (channelCounts_1 + 5'h01);
+    end
+    if(timing_generator_io_frame_start) begin
+      channelCounts_1 <= 5'h0;
+    end
+    _zz_when_VGAVideoGenerator_l36_5 <= _zz_when_VGAVideoGenerator_l36_4;
+    if(when_VGAVideoGenerator_l36_2) begin
+      channelCounts_2 <= (channelCounts_2 + 5'h01);
+    end
+    if(timing_generator_io_frame_start) begin
+      channelCounts_2 <= 5'h0;
+    end
+    _zz_when_VGAVideoGenerator_l36_7 <= _zz_when_VGAVideoGenerator_l36_6;
+    if(when_VGAVideoGenerator_l36_3) begin
+      channelCounts_3 <= (channelCounts_3 + 5'h01);
+    end
+    if(timing_generator_io_frame_start) begin
+      channelCounts_3 <= 5'h0;
+    end
+    io_oscillatorData_combined_regNext <= io_oscillatorData_combined;
+    if(when_VGAVideoGenerator_l46) begin
+      chAllCount <= (chAllCount + 9'h001);
+    end
+    if(timing_generator_io_frame_start) begin
+      chAllCount <= 9'h0;
     end
   end
 
